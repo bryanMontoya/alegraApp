@@ -71,7 +71,7 @@ def sendInvoice(pendingInvoices : list):
         if request.status_code == 201:
             saveInvoice(invoice = invoice)   
             df = df.drop([i])    
-            
+
     with pd.ExcelWriter('data - copia.xlsx', engine = 'openpyxl', mode ='a', if_sheet_exists = 'replace') as writer:
         df.to_excel(writer, 'Pendientes', index = False)
 
