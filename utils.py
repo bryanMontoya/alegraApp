@@ -9,21 +9,26 @@ print(base64_message)"""
 
 
 import requests
+import json
+
 headers = {
             "Authorization" :
             "Basic eWNhcnJvOUBnbWFpbC5jb206ZGIyNjEzNTc4OWY2NGU5ZjY0ZWI="
             }
 
 #Nombre exacto del cliente. Si hay dos clientes?
-params = {"name" : "Bray"}
+params = {"identification" : 12345,
+          "limit"  : 1,
+          "order_field" : "identification"
+        }
 
 #Obtener id del cliente a través del nombre para crear factura de venta.
 response = requests.get(url = "https://api.alegra.com/api/v1/contacts/",
                 headers = headers, params = params)
 
-print(response.status_code)
-print(response.text)
+print(json.loads(response.text)[0]['id'])
 
+"""
 #Nombre exacto del producto.
 params = {"name" : "clavos"}
 #Obtener id del producto a través del nombre para crear factura de venta.
@@ -32,3 +37,4 @@ response = requests.get(url = "https://api.alegra.com/api/v1/items/",
 
 print(response.status_code)
 print(response.text)
+"""

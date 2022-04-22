@@ -18,11 +18,13 @@ class Api:
         dict Invoice: Factura a enviar.
 
         Return is the http response
-        """
+        """        
+        
+        idClient = self.getClientById(identification = invoice['clientedni'])
         payload = {                                     #Obligatorios.
             'date': str(invoice['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(invoice['fecha'].date()),    #Fecha de vencimiento de la factura.
-            'client': invoice['cliente'],               #Id del cliente.
+            'client': idClient,                         #Id del cliente.
             'items' : [                                 #Lista de prod/serv asociados a la factura.
                 {
                     'id': invoice['referencia'],        #Identificador prod/serv.
@@ -36,6 +38,7 @@ class Api:
         #Crear factura de venta.
         response = requests.post(url = "https://api.alegra.com/api/v1/invoices",
                     headers = self.headers, data = json.dumps(payload))
+        print(response.text)
 
         return response
 
@@ -48,10 +51,12 @@ class Api:
 
         Return is the http response
         """
+
+        idClient = self.getClientById(identification = remission['clientedni'])
         payload = {                                       #Obligatorios.
             'date': str(remission['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(remission['fecha'].date()),    #Fecha de vencimiento de la factura.
-            'client': remission['cliente'],               #Id del cliente.
+            'client': idClient,                           #Id del cliente.
             'items' : [                                   #Lista de prod/serv asociados a la factura.
                 {
                     'id': remission['referencia'],        #Identificador prod/serv.
@@ -67,3 +72,24 @@ class Api:
                     headers = self.headers, data = json.dumps(payload))
 
         return response
+    
+    def getClientById(self, identification):
+        """
+        getClientById(): Método encargado de consultar un cliente por su identificación.
+
+        Params:
+        int identification: Identificación del cliente.
+
+        Return type is int, id del cliente.
+        """
+        params = {
+            "identification" : identification,
+            "order_field" : "identificacion",
+            "limit"  : 1
+        }
+
+        #Obtener id del cliente a través de la identificación.
+        response = requests.get(url = "https://api.alegra.com/api/v1/contacts/",
+                headers = self.headers, params = params)
+
+        return json.loads(response.text)[0]['id']

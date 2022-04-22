@@ -33,6 +33,11 @@ def main():
             recordsToDelete.append(indexRecord)
 
     excel.deletePendientes(recordsToDelete = recordsToDelete)
-    
+
 if __name__ == '__main__':
     main()
+
+#TODO Misma Hoja para remisionados y facturados?
+#TODO Cliente, buscarlo por el número de identificación no por el nombre. Realizar funcionalidad.
+#TODO Producto, buscar producto. Realizar funcionalidad.
+#TODO Construir Json específico para Remision/Factura.
