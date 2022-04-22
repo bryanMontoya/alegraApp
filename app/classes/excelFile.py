@@ -6,8 +6,8 @@ import pandas as pd
 class ExcelFile:
     """Clase para archivo de excel."""
 
-    def __init__(self, path):        
-        self.path = path        
+    def __init__(self, path):
+        self.path = path
 
     def readExcel(self):
         """
@@ -22,7 +22,7 @@ class ExcelFile:
         #Leer excel como dataframe, extraer columnas y registros.
         df = pd.read_excel(self.path, index_col = None, sheet_name = "Pendientes")
         columns = [key.lower() for key in df.columns]
-        listInvoices = df.values.tolist()        
+        listInvoices = df.values.tolist()
 
         #Convertir dataframe a una lista de diccionarios.
         invoices = [{colum:factura[columns.index(colum)] for colum in columns} for factura in listInvoices]
@@ -35,7 +35,7 @@ class ExcelFile:
         nombre 'Facturados'.
 
         Params:
-        dict invoice: Factura a guardar.
+        dict invoice: Registros a guardar.
 
         Return is None.
         """
@@ -43,4 +43,22 @@ class ExcelFile:
         df.loc[len(df.values) + 1] = record.values()
         with pd.ExcelWriter(self.path, engine = 'openpyxl', mode ='a', if_sheet_exists = 'replace') as writer:
             df.to_excel(writer, 'Facturados', index = False)
-    
+
+    def deletePendientes(self, recordsToDelete):
+        """
+        deletePendientes(): Método encargado de eliminar registros enviados de hoja de nombre
+        nombre 'Pendientes'.
+
+        Params:
+        list recordsToDelete: Registros a borrar.
+
+        Return is None.
+        """
+        df = pd.read_excel(self.path, index_col = None, sheet_name = 'Pendientes')
+
+        for indexRecord in recordsToDelete:
+            df = df.drop([indexRecord])
+        
+        with pd.ExcelWriter(self.path, engine = 'openpyxl', mode = 'a', if_sheet_exists = 'replace') as writer:
+            df.to_excel(writer, 'Pendientes', index = False)
+

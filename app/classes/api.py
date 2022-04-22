@@ -5,9 +5,9 @@ import json
 import requests
 
 class Api:
-    """Clase para factura."""
+    """Clase para Api."""
 
-    def __init__(self, headers):        
+    def __init__(self, headers):
         self.headers = headers
 
     def sendInvoice(self, invoice):
@@ -18,7 +18,7 @@ class Api:
         dict Invoice: Factura a enviar.
 
         Return is the http response
-        """        
+        """
         payload = {                                     #Obligatorios.
             'date': str(invoice['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(invoice['fecha'].date()),    #Fecha de vencimiento de la factura.
@@ -47,12 +47,12 @@ class Api:
         dict remission: Remisión a enviar.
 
         Return is the http response
-        """        
-        payload = {                                     #Obligatorios.
+        """
+        payload = {                                       #Obligatorios.
             'date': str(remission['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(remission['fecha'].date()),    #Fecha de vencimiento de la factura.
             'client': remission['cliente'],               #Id del cliente.
-            'items' : [                                 #Lista de prod/serv asociados a la factura.
+            'items' : [                                   #Lista de prod/serv asociados a la factura.
                 {
                     'id': remission['referencia'],        #Identificador prod/serv.
                     'price': remission['precio'],         #Precio venta del producto.
