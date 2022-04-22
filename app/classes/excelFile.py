@@ -6,9 +6,8 @@ import pandas as pd
 class ExcelFile:
     """Clase para archivo de excel."""
 
-    def __init__(self, invoice, path):
-        self.invoice = invoice
-        self.path = path
+    def __init__(self, path):        
+        self.path = path        
 
     def readExcel(self):
         """

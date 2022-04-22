@@ -7,13 +7,13 @@ import requests
 class Invoice:
     """Clase para factura."""
 
-    def __init__(self, date, dueDate, client, itemId, itemPrice, itemQuantity):
-        self.date = date
-        self.dueDate = dueDate
-        self.client = client
-        self.itemId = itemId
-        self.itemPrice = itemPrice
-        self.itemQuantity = itemQuantity
+    def __init__(self, invoice):
+        self.date =  str(invoice['fecha'].date())
+        self.dueDate = str(invoice['fecha'].date())
+        self.client =  invoice['cliente']
+        self.itemId =  invoice['referencia']
+        self.itemPrice =  invoice['precio']
+        self.itemQuantity = invoice['cantidad']
 
     def sendInvoice(self):
         """
@@ -26,7 +26,7 @@ class Invoice:
         """
         headers = {
             "Authorization" :
-            "Basic Ym1vbnRveWFvc29yaW9zQGdtYWlsLmNvbTo5MzY1NGNlYjA2NTZlZjRlZThkNg=="
+            "Basic eWNhcnJvOUBnbWFpbC5jb206ZGIyNjEzNTc4OWY2NGU5ZjY0ZWI="
             }
 
         payload = {                                 #Obligatorios.
