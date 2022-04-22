@@ -29,7 +29,7 @@ class ExcelFile:
 
         return invoices
 
-    def saveInvoice(self, invoice):
+    def saveRecord(self, record):
         """
         saveInvoice(): Método encargado de apilar factura enviada en nueva hoja de excel de
         nombre 'Facturados'.
@@ -40,7 +40,7 @@ class ExcelFile:
         Return is None.
         """
         df = pd.read_excel(self.path, index_col = None, sheet_name = 'Facturados')
-        df.loc[len(df.values) + 1] = invoice.values()
+        df.loc[len(df.values) + 1] = record.values()
         with pd.ExcelWriter(self.path, engine = 'openpyxl', mode ='a', if_sheet_exists = 'replace') as writer:
             df.to_excel(writer, 'Facturados', index = False)
     
