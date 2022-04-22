@@ -41,3 +41,4 @@ if __name__ == '__main__':
 #TODO Cliente, buscarlo por el número de identificación no por el nombre. Realizar funcionalidad.
 #TODO Producto, buscar producto. Realizar funcionalidad.
 #TODO Construir Json específico para Remision/Factura.
+#TODO Confiar en información del excel o la Api, ej: Precio de producto.

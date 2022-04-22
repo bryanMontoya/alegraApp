@@ -21,13 +21,15 @@ class Api:
         """        
         
         idClient = self.getClientById(identification = invoice['clientedni'])
+        idProduct = self.getProductByName(nameProd = invoice['referencia'])
+        
         payload = {                                     #Obligatorios.
             'date': str(invoice['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(invoice['fecha'].date()),    #Fecha de vencimiento de la factura.
             'client': idClient,                         #Id del cliente.
             'items' : [                                 #Lista de prod/serv asociados a la factura.
                 {
-                    'id': invoice['referencia'],        #Identificador prod/serv.
+                    'id': idProduct,                    #Identificador prod/serv.
                     'price': invoice['precio'],         #Precio venta del producto.
                     'quantity': invoice['cantidad']     #Cantidad vendida del prod/serv.
                 }
@@ -53,13 +55,15 @@ class Api:
         """
 
         idClient = self.getClientById(identification = remission['clientedni'])
+        idProduct = self.getProductByName(nameProd = remission['referencia'])
+
         payload = {                                       #Obligatorios.
             'date': str(remission['fecha'].date()),       #Fecha de creación de la factura.
             'dueDate': str(remission['fecha'].date()),    #Fecha de vencimiento de la factura.
             'client': idClient,                           #Id del cliente.
             'items' : [                                   #Lista de prod/serv asociados a la factura.
                 {
-                    'id': remission['referencia'],        #Identificador prod/serv.
+                    'id': idProduct,                      #Identificador prod/serv.
                     'price': remission['precio'],         #Precio venta del producto.
                     'quantity': remission['cantidad']     #Cantidad vendida del prod/serv.
                 }
@@ -93,3 +97,25 @@ class Api:
                 headers = self.headers, params = params)
 
         return json.loads(response.text)[0]['id']
+
+    def getProductByName(self, nameProd):
+        """
+        getProductByName(): Método encargado de consultar el id de un producto dado su nombre.
+
+        Params:
+        str nameProd: Nombre del producto.
+
+        Return type is int, id del producto.
+        """
+        params = {
+            "name" : nameProd,
+            "order_field" : "name",
+            "limit"  : 1
+        }
+
+        #Obtener id del cliente a través de la identificación.
+        response = requests.get(url = "https://api.alegra.com/api/v1/items/",
+                headers = self.headers, params = params)
+
+        return json.loads(response.text)[0]['id']
+
