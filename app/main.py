@@ -1,7 +1,6 @@
 """Alegra App."""
 
 #Sección de importación de librerías.
-import pandas as pd
 from classes import excelFile, api
 
 path = 'data - copia.xlsx'
@@ -18,7 +17,7 @@ def main():
     """
     excel = excelFile.ExcelFile(path = path)
     records = excel.readExcel()
-    recordsToDelete = []    
+    recordsToDelete = []
 
     for indexRecord, record in enumerate(records):
 
@@ -42,3 +41,8 @@ if __name__ == '__main__':
 #TODO Producto, buscar producto. Realizar funcionalidad.
 #TODO Construir Json específico para Remision/Factura.
 #TODO Confiar en información del excel o la Api, ej: Precio de producto.
+#TODO Fecha de Vencimiento Factura.
+#TODO Cual se refiere al producto en el excel? Referencia o artículo.
+#TODO Ruta de alegra Api como parámetro de la clase. Concatenar endpoints.
+#TODO Xml Facturas de compras.
+#TODO Información api completa Factura/Remision.

@@ -18,8 +18,8 @@ class Api:
         dict Invoice: Factura a enviar.
 
         Return is the http response
-        """        
-        
+        """
+
         idClient = self.getClientById(identification = invoice['clientedni'])
         idProduct = self.getProductByName(nameProd = invoice['referencia'])
         
@@ -34,13 +34,13 @@ class Api:
                     'quantity': invoice['cantidad']     #Cantidad vendida del prod/serv.
                 }
             ],
-            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario."""
+            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. 
+                            Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario."""
         }
 
         #Crear factura de venta.
         response = requests.post(url = "https://api.alegra.com/api/v1/invoices",
                     headers = self.headers, data = json.dumps(payload))
-        print(response.text)
 
         return response
 
@@ -113,9 +113,8 @@ class Api:
             "limit"  : 1
         }
 
-        #Obtener id del cliente a través de la identificación.
+        #Obtener id del producto a través del nombre.
         response = requests.get(url = "https://api.alegra.com/api/v1/items/",
                 headers = self.headers, params = params)
 
         return json.loads(response.text)[0]['id']
-

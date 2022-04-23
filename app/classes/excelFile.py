@@ -58,7 +58,6 @@ class ExcelFile:
 
         for indexRecord in recordsToDelete:
             df = df.drop([indexRecord])
-        
+
         with pd.ExcelWriter(self.path, engine = 'openpyxl', mode = 'a', if_sheet_exists = 'replace') as writer:
             df.to_excel(writer, 'Pendientes', index = False)
-
