@@ -1,8 +1,8 @@
 """Controller"""
 
-from email import header
 import view
 import model
+import utils
 import json
 import requests
 
@@ -11,6 +11,7 @@ class Api:
 
     def __init__(self, headers):
         self.headers = headers
+        self.urlApi = utils.urlApi
 
     def sendInvoice(self, invoice):
         """
@@ -41,7 +42,7 @@ class Api:
         }
 
         #Crear factura de venta.
-        response = requests.post(url = "https://api.alegra.com/api/v1/invoices",
+        response = requests.post(url = self.urlApi + "invoices/",
                     headers = self.headers, data = json.dumps(payload))
 
         return response
@@ -74,7 +75,7 @@ class Api:
         }
 
         #Crear remision.
-        response = requests.post(url = "https://api.alegra.com/api/v1/remissions",
+        response = requests.post(url = self.urlApi + "remissions/",
                     headers = self.headers, data = json.dumps(payload))
 
         return response
@@ -95,7 +96,7 @@ class Api:
         }
 
         #Obtener id del cliente a través de la identificación.
-        response = requests.get(url = "https://api.alegra.com/api/v1/contacts/",
+        response = requests.get(url = self.urlApi + "contacts/",
                 headers = self.headers, params = params)
 
         return json.loads(response.text)[0]['id']
@@ -116,16 +117,36 @@ class Api:
         }
 
         #Obtener id del producto a través del nombre.
-        response = requests.get(url = "https://api.alegra.com/api/v1/items/",
+        response = requests.get(url = self.urlApi + "items/",
                 headers = self.headers, params = params)
 
         return json.loads(response.text)[0]['id']
 
-path = 'data - copia.xlsx'
-headers = {
-        "Authorization" :
-        "Basic eWNhcnJvOUBnbWFpbC5jb206ZGIyNjEzNTc4OWY2NGU5ZjY0ZWI="
-        }
+def handleRecords(records, excel, api):
+    """
+    handleRecords(): Método encargado de manejar cada registro.
+
+    Params:
+    list records: registros.
+    obj excel: objecto de tipo excel.
+    obj api: objeto de tipo api.
+
+    Return type is list, registros a borrar.
+    """
+
+    recordsToDelete = []
+    for indexRecord, record in enumerate(records):
+        
+        if record['fact/remis'].lower() == 'facturado':
+            response = api.sendInvoice(invoice = record)
+        elif record['fact/remis'].lower() == 'remisionado':
+            response = api.sendRemission(remission = record)
+
+        if response.status_code == 201:
+            excel.save(record = record)
+            recordsToDelete.append(indexRecord)
+    
+    return recordsToDelete
 
 def main():
     """
@@ -134,24 +155,23 @@ def main():
     Return is None
     """
     view.starView()
-    excel = model.ExcelFile(path = path)    
+
+    excel = model.ExcelFile()
     records = excel.read()
-    recordsToDelete = []
-
-    apiObject = Api(headers = headers)
-
-    for indexRecord, record in enumerate(records):
-        
-        if record['fact/remis'].lower() == 'facturado':
-            response = apiObject.sendInvoice(invoice = record)
-        elif record['fact/remis'].lower() == 'remisionado':
-            response = apiObject.sendRemission(remission = record)
-
-        if response.status_code == 201:
-            excel.save(record = record)
-            recordsToDelete.append(indexRecord)
-
+    apiObject = Api(headers = utils.headersApi)
+    recordsToDelete = handleRecords(records = records, excel = excel, api = apiObject)
     excel.delete(recordsToDelete = recordsToDelete)
+
+    view.endView()
 
 if __name__ == '__main__':
     main()
+
+#TODO Headers, certifieds.
+#TODO Utils info.Terms and conditions.
+#TODO Construir Json específico para Remision/Factura.
+#TODO Confiar en información del excel o la Api, ej: Precio de producto.
+#TODO Fecha de Vencimiento Factura.
+#TODO Cual se refiere al producto en el excel? Referencia o artículo.
+#TODO Xml Facturas de compras.
+#TODO Información api completa Factura/Remision.

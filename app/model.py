@@ -1,12 +1,13 @@
 """Model"""
 
 import pandas as pd
+import utils
 
 class ExcelFile:
     """Clase para archivo de excel."""
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self):
+        self.path = utils.pathExcelFile
 
     def read(self):
         """
