@@ -1,6 +1,5 @@
-"""Class excel File."""
+"""Model"""
 
-#Sección de importación de librerías.
 import pandas as pd
 
 class ExcelFile:
@@ -9,9 +8,9 @@ class ExcelFile:
     def __init__(self, path):
         self.path = path
 
-    def readExcel(self):
+    def read(self):
         """
-        readExcel(): Método encargado de leer el documento de excel, y retornar los registros en
+        read(): Método encargado de leer el documento de excel, y retornar los registros en
         como lista de diccionarios.
 
         Params:
@@ -29,9 +28,9 @@ class ExcelFile:
 
         return invoices
 
-    def saveRecord(self, record):
+    def save(self, record):
         """
-        saveInvoice(): Método encargado de apilar factura enviada en nueva hoja de excel de
+        save(): Método encargado de apilar factura enviada en nueva hoja de excel de
         nombre 'Facturados'.
 
         Params:
@@ -44,9 +43,9 @@ class ExcelFile:
         with pd.ExcelWriter(self.path, engine = 'openpyxl', mode ='a', if_sheet_exists = 'replace') as writer:
             df.to_excel(writer, 'Facturados', index = False)
 
-    def deletePendientes(self, recordsToDelete):
+    def delete(self, recordsToDelete):
         """
-        deletePendientes(): Método encargado de eliminar registros enviados de hoja de nombre
+        delete(): Método encargado de eliminar registros enviados de hoja de nombre
         nombre 'Pendientes'.
 
         Params:
