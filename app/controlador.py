@@ -1,0 +1,172 @@
+"""Controlador"""
+
+#import auth
+import enum
+from pydoc import visiblename
+import modelo
+import vista
+import json
+import requests
+import utils
+import utilsGenHeaders
+
+class Api:
+    """Clase para Api."""
+
+    def __init__(self, headers):
+        self.headers = headers
+        self.urlApi = utils.urlApi
+
+    def enviarFactura(self, factura):
+        """
+        enviarFactura(): Método encargado de enviar a la API de Alegra una factura.
+        Params: dict factura: Factura a enviar.
+        Retorna respuesta http
+        """
+        payload = Api.construirFactura(self = self, factura = factura)
+        respuesta = requests.post(url = self.urlApi + "invoices/",
+                    headers = self.headers, data = json.dumps(payload))
+        return respuesta
+    
+    def construirFactura(self, factura):
+        """
+        construirFactura(): Método encargado de construir factura.
+        Params: dict factura: Factura a enviar.
+        Retorna payload con factura construida.
+        """
+        idCliente = Api.getClientById(self = self, identification = factura['clienteid']) #TODO refactor
+        idProducto = Api.getProductById(self = self, referenciaProd = factura['referencia'])
+
+        payload = {                                         #Obligatorios.
+            'date': str(factura['fecha'].date()),           #Fecha de creación de la factura.
+            'dueDate': str(factura['fecha'].date()),        #Fecha de vencimiento des la factura.
+            'anotation' : """Favor consignar en la cta de ahorros Bancolombia #412 
+            00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
+            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. 
+                            Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario.""",
+            'status' : 'open',
+
+            'paymentMethod' :str(factura['formapago']),
+            'client': idCliente,                            #Id del cliente.
+            'items' : [                                     #Lista de prod/serv asociados a la factura.
+                {
+                    'id': idProducto,                       #Identificador prod/serv.
+                    'price': factura['precio'],             #Precio venta del producto.
+                    'quantity': factura['cantidad'],        #Cantidad vendida del prod/serv.
+                    'tax' : factura['iva'],
+                    'reference' : factura['referencia']
+                }
+            ]
+        }
+        return payload
+    
+    def enviarRemision(self, remision):
+        """
+        enviarRemision(): Método encargado de enviar a la API de Alegra una remisión.
+        Params: dict remision: Remisión a enviar.
+        Retorna respuesta http.
+        """
+        payload = Api.construirRemision(self = self, remision = remision)
+        respuesta = requests.post(url = self.urlApi + "remissions/",
+                    headers = self.headers, data = json.dumps(payload))
+        return respuesta
+    
+    def construirRemision(self, remision):
+        """
+        construirRemision(): Método encargado de construir remision.
+        Params: dict remision: Remision a enviar.
+        Retorna payload con remision construida.
+        """
+        idCliente = Api.getClientById(self = self, identification = remision['clienteid']) #TODO refactor
+        idProducto = Api.getProductById(self = self, referenciaProd = remision['referencia'])
+        payload = {                                      #Obligatorios.
+            'date': str(remision['fecha'].date()),       #Fecha de creación de la factura.
+            'dueDate': str(remision['fecha'].date()),    #Fecha de vencimiento de la factura.
+            'client': idCliente,                         #Id del cliente.
+            'items' : [                                  #Lista de prod/serv asociados a la factura.
+                {
+                    'id': idProducto,                      #Identificador prod/serv.
+                    'price': remision['precio'],         #Precio venta del producto.
+                    'quantity': remision['cantidad']     #Cantidad vendida del prod/serv.
+                }
+            ],
+            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario."""
+        }
+        return payload
+    
+    def getClientById(self, identification):
+        """
+        getClientById(): Método encargado de consultar un cliente por su identificación.
+        Params: int identificacion: Identificación del cliente.
+        Retorna int, id del cliente.
+        """
+        params = {
+            "identification" : identification,
+            "order_field" : "id",
+            "limit"  : 1
+        }
+        response = requests.get(url = self.urlApi + "contacts/",
+                headers = self.headers, params = params)
+        return json.loads(response.text)[0]['id']
+
+    def getProductById(self, referenciaProd):
+        """
+        getProductById(): Método encargado de consultar el id de un producto dado su referencia.
+        Params: str referenciaProd: Referencia.
+        Retorna int, id del producto.
+        """
+        params = {
+            "reference" : referenciaProd,
+            "order_field" : "id",
+            "limit"  : 1
+        }
+        response = requests.get(url = self.urlApi + "items/",
+                headers = self.headers, params = params)
+        return json.loads(response.text)[0]['id']
+
+def procesarRegistro(registro):
+    """
+    handleRecords(): Método encargado de manejar cada registro.
+    Params: list registro: registro.
+    """ 
+    headersApi = utilsGenHeaders.genBasicToken() #TODO Refactor
+    api = Api(headers = headersApi)
+    regIndx = registro[0]
+    registro = registro[1]
+
+    if registro['fact/remis'].lower() == 'facturado':
+        response = api.enviarFactura(factura = registro)
+    elif registro['fact/remis'].lower() == 'remisionado':
+        response = api.enviarRemision(remision = registro)
+    
+    return response
+'''
+    if response.status_code == 201:
+        excel.save(record = record)
+        recordsToDelete.append(indexRecord)
+    
+    return recordsToDelete'''
+
+def main():    
+    vista.starView()
+    excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
+    registros = excel.leerRegistrosPendientes()
+    respuestas = map(procesarRegistro, list(enumerate(registros)))
+    print(list(respuestas)) #Procesar repuestas. Eliminar.
+    vista.endView()
+
+"""
+    excel.delete(recordsToDelete = recordsToDelete)
+"""
+
+if __name__ == '__main__':
+    main()
+
+#TODO Headers, certifieds.
+#TODO Utils info.Terms and conditions.
+#TODO Construir Json específico para Remision/Factura.
+#TODO Confiar en información del excel o la Api, ej: Precio de producto.
+#TODO Fecha de Vencimiento Factura.
+#TODO Resiliente a caidas de red, a archivo abierto.
+#TODO Eliminar del modelo.
+#TODO Validar forma y metodo de pago
