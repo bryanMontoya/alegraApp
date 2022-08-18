@@ -144,27 +144,19 @@ def procesarRegistro(registro):
     elif registro['fact/remis'].lower() == 'remisionado':
         response = api.enviarRemision(remision = registro)
     
-    codigoRespuesta = response.status_code
- '''
-    if response.status_code == 201:
-        excel.save(record = record)
-        recordsToDelete.append(indexRecord)
-        #Eliminar uno a uno
-        """
-        excel.delete(recordsToDelete = recordsToDelete)
-        """
-    
-    return recordsToDelete'''
+    if response.status_code == 201:                        
+        excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
+        excel.guardarFacturados(registro = registro)
+        return regIndx            
 
 def main():
 
     vista.starView()
     excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
     registros = excel.leerRegistrosPendientes()
-    respuestas = map(procesarRegistro, list(enumerate(registros)))    
+    registrosBorrar = map(procesarRegistro, list(enumerate(registros)))    
+    excel.borrarPendientes(registros = registrosBorrar)
     vista.endView()
-
-
 
 if __name__ == '__main__':
     main()
@@ -173,4 +165,3 @@ if __name__ == '__main__':
 #TODO Resiliente a caidas de red, a archivo abierto.
 #TODO tax == IVA? Objeto
 #TODO Tolerar que los llamados no funcionen.
-#TODO Borrar

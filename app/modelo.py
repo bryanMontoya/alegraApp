@@ -1,7 +1,6 @@
 """Modelo"""
 
 import pandas as pd
-import utils
 
 class archivoExcel:
     """Clase para archivo de excel."""
