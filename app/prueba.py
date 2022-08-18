@@ -1,4 +1,4 @@
-a = [{"a": "b"}, {"c": "g"}, {"j": "ñ"}]
+'''a = [{"a": "b"}, {"c": "g"}, {"j": "ñ"}]
 
 x = list(enumerate(a))
 
@@ -12,7 +12,7 @@ def myfuncion(valor):
 z = map(myfuncion, a)
 
 print(list(z))
-'''
+
 
 
 def addition(n):

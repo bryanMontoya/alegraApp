@@ -1,6 +1,6 @@
 """Utiles"""
 
 pathExcelFile = 'data - copia.xlsx'
-pathConfig = "config.txt"
-
+pathConfig = "Configuracion.txt"
+pathTermsCond = "TerminosCondiciones.txt"
 urlApi = "https://api.alegra.com/api/v1/"

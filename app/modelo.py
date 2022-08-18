@@ -14,11 +14,8 @@ class archivoExcel:
         """
         leer(): Método encargado de leer el documento de excel, y retornar los registros en
         como lista de diccionarios.
-        Params:
-        None
         Retorna Lista.
         """
-
         #Leer excel como dataframe, extraer columnas y registros.
         df = pd.read_excel(self.path, index_col = None, sheet_name = "Pendientes")
         columnas = [key.lower() for key in df.columns]
@@ -35,7 +32,6 @@ class archivoExcel:
         Params:
         dict registro: Registros a guardar.
         """
-
         df = pd.read_excel(self.path, index_col = None, sheet_name = 'Facturados')
         df.loc[len(df.values) + 1] = registro.values()
         with pd.ExcelWriter(self.path, engine = 'openpyxl', mode ='a', if_sheet_exists = 'replace') as writer:

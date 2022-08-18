@@ -1,8 +1,5 @@
 """Controlador"""
 
-#import auth
-import enum
-from pydoc import visiblename
 import modelo
 import vista
 import json
@@ -34,26 +31,22 @@ class Api:
         Params: dict factura: Factura a enviar.
         Retorna payload con factura construida.
         """
-        idCliente = Api.getClientById(self = self, identification = factura['clienteid']) #TODO refactor
+        idCliente = Api.getClientById(self = self, identification = factura['clienteid'])
         idProducto = Api.getProductById(self = self, referenciaProd = factura['referencia'])
 
         payload = {                                         #Obligatorios.
             'date': str(factura['fecha'].date()),           #Fecha de creación de la factura.
-            'dueDate': str(factura['fecha'].date()),        #Fecha de vencimiento des la factura.
+            'dueDate': str(factura['fechavencimiento'].date()),        #Fecha de vencimiento des la factura.
             'anotation' : """Favor consignar en la cta de ahorros Bancolombia #412 
             00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
-            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. 
-                            Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario.""",
-            'status' : 'open',
-
+            'termsConditions' : terminosCondiciones(),            
             'paymentMethod' :str(factura['formapago']),
             'client': idCliente,                            #Id del cliente.
             'items' : [                                     #Lista de prod/serv asociados a la factura.
                 {
                     'id': idProducto,                       #Identificador prod/serv.
                     'price': factura['precio'],             #Precio venta del producto.
-                    'quantity': factura['cantidad'],        #Cantidad vendida del prod/serv.
-                    'tax' : factura['iva'],
+                    'quantity': factura['cantidad'],        #Cantidad vendida del prod/serv.                    
                     'reference' : factura['referencia']
                 }
             ]
@@ -77,20 +70,23 @@ class Api:
         Params: dict remision: Remision a enviar.
         Retorna payload con remision construida.
         """
-        idCliente = Api.getClientById(self = self, identification = remision['clienteid']) #TODO refactor
+        idCliente = Api.getClientById(self = self, identification = remision['clienteid'])
         idProducto = Api.getProductById(self = self, referenciaProd = remision['referencia'])
         payload = {                                      #Obligatorios.
             'date': str(remision['fecha'].date()),       #Fecha de creación de la factura.
-            'dueDate': str(remision['fecha'].date()),    #Fecha de vencimiento de la factura.
+            'dueDate': str(remision['fechavencimiento'].date()),    #Fecha de vencimiento de la factura.
             'client': idCliente,                         #Id del cliente.
+            'anotation' : str(remision['transportadora']) + ' ' + str(remision['guia']) 
+                        + '*' + str(remision['numeropaquetes']),
+            'termsConditions' : terminosCondiciones(),
             'items' : [                                  #Lista de prod/serv asociados a la factura.
                 {
-                    'id': idProducto,                      #Identificador prod/serv.
+                    'id': idProducto,                    #Identificador prod/serv.
                     'price': remision['precio'],         #Precio venta del producto.
-                    'quantity': remision['cantidad']     #Cantidad vendida del prod/serv.
+                    'quantity': remision['cantidad'],    #Cantidad vendida del prod/serv. 
+                    'reference': remision['referencia']
                 }
-            ],
-            'termsConditions' : """Favor llamar antes de consignar al cel 3117667434 para asignación de cuenta. Favor hacer el pago por medio de un PAC de Bancolombia o corresponsal bancario."""
+            ]
         }
         return payload
     
@@ -124,6 +120,15 @@ class Api:
                 headers = self.headers, params = params)
         return json.loads(response.text)[0]['id']
 
+def terminosCondiciones():
+    "Para leer txt de terminos y condiciones."
+    variables = []
+    with open(utils.pathTermsCond, 'r') as archivo:
+        lineas = archivo.readlines()
+        for linea in lineas:
+            variables.append(linea.strip('\n'))
+    return variables[0]
+
 def procesarRegistro(registro):
     """
     handleRecords(): Método encargado de manejar cada registro.
@@ -139,34 +144,33 @@ def procesarRegistro(registro):
     elif registro['fact/remis'].lower() == 'remisionado':
         response = api.enviarRemision(remision = registro)
     
-    return response
-'''
+    codigoRespuesta = response.status_code
+ '''
     if response.status_code == 201:
         excel.save(record = record)
         recordsToDelete.append(indexRecord)
+        #Eliminar uno a uno
+        """
+        excel.delete(recordsToDelete = recordsToDelete)
+        """
     
     return recordsToDelete'''
 
-def main():    
+def main():
+
     vista.starView()
     excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
     registros = excel.leerRegistrosPendientes()
-    respuestas = map(procesarRegistro, list(enumerate(registros)))
-    print(list(respuestas)) #Procesar repuestas. Eliminar.
+    respuestas = map(procesarRegistro, list(enumerate(registros)))    
     vista.endView()
 
-"""
-    excel.delete(recordsToDelete = recordsToDelete)
-"""
+
 
 if __name__ == '__main__':
     main()
 
-#TODO Headers, certifieds.
-#TODO Utils info.Terms and conditions.
-#TODO Construir Json específico para Remision/Factura.
-#TODO Confiar en información del excel o la Api, ej: Precio de producto.
-#TODO Fecha de Vencimiento Factura.
+#TODO Generar token solo al inicio del programa.
 #TODO Resiliente a caidas de red, a archivo abierto.
-#TODO Eliminar del modelo.
-#TODO Validar forma y metodo de pago
+#TODO tax == IVA? Objeto
+#TODO Tolerar que los llamados no funcionen.
+#TODO Borrar
