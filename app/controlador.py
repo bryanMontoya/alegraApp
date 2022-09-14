@@ -1,82 +1,9 @@
 """Controlador"""
 
+import AlegraApi
 import modelo
-import vista
-import json
-import requests
 import utils
 import utilsGenHeaders
-
-class Api:
-    """Clase para Api."""
-
-    def __init__(self):
-        self._headers = None
-        self._urlApi = None
-    
-    def getHeaders(self):
-        return self._headers
-    
-    def getUrl(self):
-        return self._urlApi
-    
-    def setHeaders(self, headers):         
-         self._headers = headers
-        
-    def setUrlApi(self, urlApi):         
-         self._urlApi = urlApi
-
-    def enviarFactura(self, payload):
-        """
-        enviarFactura(): Método encargado de enviar a la API de Alegra una factura.
-        Params: dict payload: Factura a enviar.
-        Retorna respuesta http
-        """        
-        respuesta = requests.post(url = self._urlApi + "invoices/",
-                    headers = self._headers, data = json.dumps(payload))
-        return respuesta
-
-    def enviarRemision(self, payload):
-        """
-        enviarRemision(): Método encargado de enviar a la API de Alegra una remisión.
-        Params: dict payload: Remisión a enviar.
-        Retorna respuesta http.
-        """        
-        respuesta = requests.post(url = self._urlApi + "remissions/",
-                    headers = self._headers, data = json.dumps(payload))
-        return respuesta
-
-    def getClientById(self, identification):
-        """
-        getClientById(): Método encargado de consultar un cliente por su identificación.
-        Params: int identificacion: Identificación del cliente.
-        Retorna int, id del cliente.
-        """        
-        params = {
-            "identification" : int(identification),
-            "order_field" : "id",
-            "limit"  : 1
-        }
-        response = requests.get(url = self._urlApi + "contacts/",
-                headers = self._headers, params = params)        
-        return json.loads(response.text)[0]['id']
-        #TODO Tolerar que no se encuentre el cliente.
-
-    def getProductById(self, referenciaProd):
-        """
-        getProductById(): Método encargado de consultar el id de un producto dado su referencia.
-        Params: str referenciaProd: Referencia.
-        Retorna int, id del producto.
-        """
-        params = {
-            "reference" : int(referenciaProd),
-            "order_field" : "id",
-            "limit"  : 1
-        }
-        response = requests.get(url = self._urlApi + "items/",
-                headers = self._headers, params = params)
-        return json.loads(response.text)[0]['id']
-        #TODO Tolerar que no se encuentre la referencia del producto.
 
 def procesarEnviables(conjuntoRegistros):
         """
@@ -84,7 +11,7 @@ def procesarEnviables(conjuntoRegistros):
         Params: 
         Retorna payload con enviable construido.
         """
-        api = Api()        
+        api = AlegraApi.Api()        
         api.setHeaders(utilsGenHeaders.genBasicToken())
         api.setUrlApi(utils.urlApi)
 
@@ -95,7 +22,7 @@ def procesarEnviables(conjuntoRegistros):
             'date': str(registroPrincipal['fecha'].date()),
             'dueDate': str(registroPrincipal['fechavencimiento'].date()),
             'client': idCliente,            
-            'termsConditions' : terminosCondiciones()
+            'termsConditions' : utils.terminosCondiciones()
         }
 
         items = []
@@ -147,23 +74,10 @@ def procesarConjuntos(registrosPendientes, registrosVaciosIndex):
             procesarEnviables(conjuntoRegistros = conjunto)
 
 def main():
-
-    #vista.starView()
+    
     excelEnviables = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
     registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()    
-    procesarConjuntos(registrosPendientes, registrosVacios)
-    #registrosBorrar = map(procesarRegistro, list(enumerate(registros)))
-    #excel.borrarPendientes(registros = registrosBorrar)
-    #vista.endView()
-
-def terminosCondiciones():
-    "Para leer txt de terminos y condiciones."
-    variables = []
-    with open(utils.pathTermsCond, 'r') as archivo:
-        lineas = archivo.readlines()
-        for linea in lineas:
-            variables.append(linea.strip('\n'))
-    return variables[0]
+    procesarConjuntos(registrosPendientes, registrosVacios)         
 
 if __name__ == '__main__':
     main()    
