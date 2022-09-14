@@ -120,6 +120,61 @@ class Api:
                 headers = self.headers, params = params)
         return json.loads(response.text)[0]['id']
 
+def procesarConjuntoEnviables(conjuntoRegistros):
+    """
+    handleRecords(): Método encargado de manejar cada conjunto de registros.
+    Params: list registros: registros.
+    """ 
+    '''
+    headersApi = utilsGenHeaders.genBasicToken() #TODO Refactor headers
+    api = Api(headers = headersApi)
+    regIndx = registro[0]
+    registro = registro[1]
+    '''
+    #if(conjuntoRegistros[0])
+    print(conjuntoRegistros[0])
+
+    '''
+    if registro['fact/remis'].lower() == 'facturado':
+        response = api.enviarFactura(factura = registro)
+    elif registro['fact/remis'].lower() == 'remisionado':
+        response = api.enviarRemision(remision = registro)
+    
+    if response.status_code == 201:                        
+        excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
+        excel.guardarFacturados(registro = registro)
+        return regIndx     '''    
+
+def procesarConjuntos(registrosPendientes, registrosVaciosIndex):
+    """procesarConjuntos: Identificar productos que pertenecen a un mismo cliente.
+    Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos.
+    """
+    conjunto = []
+    for i, j in enumerate(registrosPendientes):
+        if (i not in registrosVaciosIndex):
+            #Juntar registros pertenecientes a mismo enviable.
+            conjunto.append(j)
+        else:
+            if (len(conjunto) > 0):
+                #Procesar conjunto de registros.
+                procesarConjuntoEnviables(conjuntoRegistros = conjunto)
+                conjunto.clear()
+    else:
+        if (len(conjunto) > 0):
+            #Procesar conjunto de registros.
+            procesarConjuntoEnviables(conjuntoRegistros = conjunto)
+
+def main():
+
+    #vista.starView()
+    excelEnviables = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
+    registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()
+    print(registrosVacios)
+    procesarConjuntos(registrosPendientes, registrosVacios)
+    #registrosBorrar = map(procesarRegistro, list(enumerate(registros)))
+    #excel.borrarPendientes(registros = registrosBorrar)
+    #vista.endView()
+
 def terminosCondiciones():
     "Para leer txt de terminos y condiciones."
     variables = []
@@ -129,39 +184,10 @@ def terminosCondiciones():
             variables.append(linea.strip('\n'))
     return variables[0]
 
-def procesarRegistro(registro):
-    """
-    handleRecords(): Método encargado de manejar cada registro.
-    Params: list registro: registro.
-    """ 
-    headersApi = utilsGenHeaders.genBasicToken() #TODO Refactor
-    api = Api(headers = headersApi)
-    regIndx = registro[0]
-    registro = registro[1]
-
-    if registro['fact/remis'].lower() == 'facturado':
-        response = api.enviarFactura(factura = registro)
-    elif registro['fact/remis'].lower() == 'remisionado':
-        response = api.enviarRemision(remision = registro)
-    
-    if response.status_code == 201:                        
-        excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
-        excel.guardarFacturados(registro = registro)
-        return regIndx            
-
-def main():
-
-    vista.starView()
-    excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
-    registros = excel.leerRegistrosPendientes()
-    registrosBorrar = map(procesarRegistro, list(enumerate(registros)))    
-    excel.borrarPendientes(registros = registrosBorrar)
-    vista.endView()
-
 if __name__ == '__main__':
-    main()
+    main()    
 
 #TODO Generar token solo al inicio del programa.
-#TODO Resiliente a caidas de red, a archivo abierto.
+#TODO Resiliente a caidas de red.
 #TODO tax == IVA? Objeto
 #TODO Tolerar que los llamados no funcionen.
