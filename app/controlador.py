@@ -10,100 +10,57 @@ import utilsGenHeaders
 class Api:
     """Clase para Api."""
 
-    def __init__(self, headers):
-        self.headers = headers
-        self.urlApi = utils.urlApi
+    def __init__(self):
+        self._headers = None
+        self._urlApi = None
+    
+    def getHeaders(self):
+        return self._headers
+    
+    def getUrl(self):
+        return self._urlApi
+    
+    def setHeaders(self, headers):         
+         self._headers = headers
+        
+    def setUrlApi(self, urlApi):         
+         self._urlApi = urlApi
 
-    def enviarFactura(self, factura):
+    def enviarFactura(self, payload):
         """
         enviarFactura(): Método encargado de enviar a la API de Alegra una factura.
-        Params: dict factura: Factura a enviar.
+        Params: dict payload: Factura a enviar.
         Retorna respuesta http
-        """
-        payload = Api.construirFactura(self = self, factura = factura)
-        respuesta = requests.post(url = self.urlApi + "invoices/",
-                    headers = self.headers, data = json.dumps(payload))
+        """        
+        respuesta = requests.post(url = self._urlApi + "invoices/",
+                    headers = self._headers, data = json.dumps(payload))
         return respuesta
-    
-    def construirFactura(self, factura):
-        """
-        construirFactura(): Método encargado de construir factura.
-        Params: dict factura: Factura a enviar.
-        Retorna payload con factura construida.
-        """
-        idCliente = Api.getClientById(self = self, identification = factura['clienteid'])
-        idProducto = Api.getProductById(self = self, referenciaProd = factura['referencia'])
 
-        payload = {                                         #Obligatorios.
-            'date': str(factura['fecha'].date()),           #Fecha de creación de la factura.
-            'dueDate': str(factura['fechavencimiento'].date()),        #Fecha de vencimiento des la factura.
-            'anotation' : """Favor consignar en la cta de ahorros Bancolombia #412 
-            00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
-            'termsConditions' : terminosCondiciones(),            
-            'paymentMethod' :str(factura['formapago']),
-            'client': idCliente,                            #Id del cliente.
-            'items' : [                                     #Lista de prod/serv asociados a la factura.
-                {
-                    'id': idProducto,                       #Identificador prod/serv.
-                    'price': factura['precio'],             #Precio venta del producto.
-                    'quantity': factura['cantidad'],        #Cantidad vendida del prod/serv.                    
-                    'reference' : factura['referencia']
-                }
-            ]
-        }
-        return payload
-    
-    def enviarRemision(self, remision):
+    def enviarRemision(self, payload):
         """
         enviarRemision(): Método encargado de enviar a la API de Alegra una remisión.
-        Params: dict remision: Remisión a enviar.
+        Params: dict payload: Remisión a enviar.
         Retorna respuesta http.
-        """
-        payload = Api.construirRemision(self = self, remision = remision)
-        respuesta = requests.post(url = self.urlApi + "remissions/",
-                    headers = self.headers, data = json.dumps(payload))
+        """        
+        respuesta = requests.post(url = self._urlApi + "remissions/",
+                    headers = self._headers, data = json.dumps(payload))
         return respuesta
-    
-    def construirRemision(self, remision):
-        """
-        construirRemision(): Método encargado de construir remision.
-        Params: dict remision: Remision a enviar.
-        Retorna payload con remision construida.
-        """
-        idCliente = Api.getClientById(self = self, identification = remision['clienteid'])
-        idProducto = Api.getProductById(self = self, referenciaProd = remision['referencia'])
-        payload = {                                      #Obligatorios.
-            'date': str(remision['fecha'].date()),       #Fecha de creación de la factura.
-            'dueDate': str(remision['fechavencimiento'].date()),    #Fecha de vencimiento de la factura.
-            'client': idCliente,                         #Id del cliente.
-            'anotation' : str(remision['transportadora']) + ' ' + str(remision['guia']) 
-                        + '*' + str(remision['numeropaquetes']),
-            'termsConditions' : terminosCondiciones(),
-            'items' : [                                  #Lista de prod/serv asociados a la factura.
-                {
-                    'id': idProducto,                    #Identificador prod/serv.
-                    'price': remision['precio'],         #Precio venta del producto.
-                    'quantity': remision['cantidad'],    #Cantidad vendida del prod/serv. 
-                    'reference': remision['referencia']
-                }
-            ]
-        }
-        return payload
-    
+
     def getClientById(self, identification):
         """
         getClientById(): Método encargado de consultar un cliente por su identificación.
         Params: int identificacion: Identificación del cliente.
         Retorna int, id del cliente.
-        """
+        """        
         params = {
-            "identification" : identification,
+            "identification" : int(identification),
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self.urlApi + "contacts/",
-                headers = self.headers, params = params)
+        response = requests.get(url = self._urlApi + "contacts/",
+                headers = self._headers, params = params)        
         return json.loads(response.text)[0]['id']
+        #TODO Tolerar que no se encuentre el cliente.
 
     def getProductById(self, referenciaProd):
         """
@@ -112,38 +69,63 @@ class Api:
         Retorna int, id del producto.
         """
         params = {
-            "reference" : referenciaProd,
+            "reference" : int(referenciaProd),
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self.urlApi + "items/",
-                headers = self.headers, params = params)
+        response = requests.get(url = self._urlApi + "items/",
+                headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
+        #TODO Tolerar que no se encuentre la referencia del producto.
 
-def procesarConjuntoEnviables(conjuntoRegistros):
-    """
-    handleRecords(): Método encargado de manejar cada conjunto de registros.
-    Params: list registros: registros.
-    """ 
-    '''
-    headersApi = utilsGenHeaders.genBasicToken() #TODO Refactor headers
-    api = Api(headers = headersApi)
-    regIndx = registro[0]
-    registro = registro[1]
-    '''
-    #if(conjuntoRegistros[0])
-    print(conjuntoRegistros[0])
+def procesarEnviables(conjuntoRegistros):
+        """
+        procesarEnviables(): Método encargado de procesar enviable sea remision o factura.
+        Params: 
+        Retorna payload con enviable construido.
+        """
+        api = Api()        
+        api.setHeaders(utilsGenHeaders.genBasicToken())
+        api.setUrlApi(utils.urlApi)
 
-    '''
-    if registro['fact/remis'].lower() == 'facturado':
-        response = api.enviarFactura(factura = registro)
-    elif registro['fact/remis'].lower() == 'remisionado':
-        response = api.enviarRemision(remision = registro)
+        registroPrincipal = conjuntoRegistros[0]        
+                
+        idCliente = api.getClientById(identification = registroPrincipal['clienteid'])        
+        payload = {
+            'date': str(registroPrincipal['fecha'].date()),
+            'dueDate': str(registroPrincipal['fechavencimiento'].date()),
+            'client': idCliente,            
+            'termsConditions' : terminosCondiciones()
+        }
+
+        items = []
+        for registro in conjuntoRegistros:
+            idProducto = api.getProductById(referenciaProd = registro['referencia'])        
+            item = {
+                'id': idProducto,
+                'price': registro['precio'],
+                'quantity': registro['cantidad'],   
+                'reference': registro['referencia']
+            }            
+            items.append(item)                              
+        payload['items'] = items                
+
+        #Para campos que no se comparten.
+        if registroPrincipal['fact / remis'].lower() == 'facturado':
+            payload['anotation'] = """Favor consignar en la cta de ahorros Bancolombia #412 
+                    00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
+            respuesta = api.enviarFactura(payload)
+        elif registroPrincipal['fact / remis'].lower() == 'remisionado':
+            payload['anotation'] = str(registroPrincipal['transportadora']) + ' ' + str(registroPrincipal['guia']) + '*' + str(registroPrincipal['numeropaquetes'])
+            respuesta = api.enviarRemision(payload)
+
+        print(respuesta)                    
     
-    if response.status_code == 201:                        
+    #TODO status code respuesta api.
+'''if response.status_code == 201:                        
         excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
         excel.guardarFacturados(registro = registro)
-        return regIndx     '''    
+        return regIndx     '''
 
 def procesarConjuntos(registrosPendientes, registrosVaciosIndex):
     """procesarConjuntos: Identificar productos que pertenecen a un mismo cliente.
@@ -157,19 +139,18 @@ def procesarConjuntos(registrosPendientes, registrosVaciosIndex):
         else:
             if (len(conjunto) > 0):
                 #Procesar conjunto de registros.
-                procesarConjuntoEnviables(conjuntoRegistros = conjunto)
+                procesarEnviables(conjuntoRegistros = conjunto)
                 conjunto.clear()
     else:
         if (len(conjunto) > 0):
             #Procesar conjunto de registros.
-            procesarConjuntoEnviables(conjuntoRegistros = conjunto)
+            procesarEnviables(conjuntoRegistros = conjunto)
 
 def main():
 
     #vista.starView()
     excelEnviables = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
-    registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()
-    print(registrosVacios)
+    registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()    
     procesarConjuntos(registrosPendientes, registrosVacios)
     #registrosBorrar = map(procesarRegistro, list(enumerate(registros)))
     #excel.borrarPendientes(registros = registrosBorrar)
