@@ -5,7 +5,6 @@ pathConfig = "Configuracion.txt"
 pathTermsCond = "TerminosCondiciones.txt"
 urlApi = "https://api.alegra.com/api/v1/"
 
-
 def terminosCondiciones():
     "Para leer txt de terminos y condiciones."
     variables = []

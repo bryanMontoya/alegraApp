@@ -9,7 +9,7 @@ import utilsGenHeaders
 def procesarEnviables(conjuntoRegistros):
         """
         procesarEnviables(): Método encargado de procesar enviable sea remision o factura.
-        Params: 
+        Params:
         Retorna payload con enviable construido.
         """
         api = AlegraApi.Api()
@@ -17,7 +17,7 @@ def procesarEnviables(conjuntoRegistros):
         api.setUrlApi(utils.urlApi)
 
         registroPrincipal = conjuntoRegistros[0]
-        
+
         try:
             idCliente = api.getClientById(identification = registroPrincipal['clienteid'])
         except:
@@ -31,7 +31,7 @@ def procesarEnviables(conjuntoRegistros):
                 'client': idCliente,
                 'termsConditions' : utils.terminosCondiciones()
             }
-            
+
             falloProducto = False
             items = []
             for registro in conjuntoRegistros:
@@ -51,7 +51,7 @@ def procesarEnviables(conjuntoRegistros):
                         'reference': registro['referencia']
                     }
                     items.append(item)
-            
+
             #No falla consultando la informacion de ningun producto.
             if not(falloProducto):
                 payload['items'] = items
@@ -67,7 +67,7 @@ def procesarEnviables(conjuntoRegistros):
                     respuesta = api.enviarRemision(payload)
 
                 print(respuesta)
-        
+
     #TODO status code respuesta api.
 '''if response.status_code == 201:
         excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
@@ -95,15 +95,13 @@ def procesarConjuntos(registrosPendientes, registrosVaciosIndex):
             procesarEnviables(conjuntoRegistros = conjunto)
 
 def main():
-    
+
     excelEnviables = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
     print("Leyendo archivo de Excel.")
-    registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()    
-    procesarConjuntos(registrosPendientes, registrosVacios)         
+    registrosPendientes, registrosVacios = excelEnviables.leerRegistrosPendientes()
+    procesarConjuntos(registrosPendientes, registrosVacios)
 
 if __name__ == '__main__':
-    main()    
+    main()
 
-#TODO Resiliente a caidas de red.
 #TODO tax == IVA? Objeto
-#TODO Tolerar que los llamados no funcionen.

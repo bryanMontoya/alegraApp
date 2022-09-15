@@ -1,4 +1,5 @@
 "Archivo para generar Autorization Token"
+
 import base64
 import utils
 
@@ -11,7 +12,7 @@ def genBasicToken():
             variables.append(linea.strip('\n'))
     EMAIL = variables[0]
     TOKEN = variables[1]
-    
+
     config = EMAIL + ":" + TOKEN
     BASICTOKEN = base64.b64encode(config.encode('ascii')).decode('ascii')
     headersApi = {
@@ -19,4 +20,3 @@ def genBasicToken():
             }
 
     return headersApi
-

@@ -9,17 +9,17 @@ class Api:
     def __init__(self):
         self._headers = None
         self._urlApi = None
-    
+
     def getHeaders(self):
         return self._headers
-    
+
     def getUrl(self):
         return self._urlApi
-    
-    def setHeaders(self, headers):         
+
+    def setHeaders(self, headers):
          self._headers = headers
-        
-    def setUrlApi(self, urlApi):         
+
+    def setUrlApi(self, urlApi):
          self._urlApi = urlApi
 
     def enviarFactura(self, payload):
@@ -27,7 +27,7 @@ class Api:
         enviarFactura(): Método encargado de enviar a la API de Alegra una factura.
         Params: dict payload: Factura a enviar.
         Retorna respuesta http
-        """        
+        """
         respuesta = requests.post(url = self._urlApi + "invoices/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
@@ -37,7 +37,7 @@ class Api:
         enviarRemision(): Método encargado de enviar a la API de Alegra una remisión.
         Params: dict payload: Remisión a enviar.
         Retorna respuesta http.
-        """        
+        """
         respuesta = requests.post(url = self._urlApi + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
@@ -47,16 +47,15 @@ class Api:
         getClientById(): Método encargado de consultar un cliente por su identificación.
         Params: int identificacion: Identificación del cliente.
         Retorna int, id del cliente.
-        """        
+        """
         params = {
             "identification" : int(identification),
             "order_field" : "id",
             "limit"  : 1
         }
         response = requests.get(url = self._urlApi + "contacts/",
-                headers = self._headers, params = params)        
+                headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
-        #TODO Tolerar que no se encuentre el cliente.
 
     def getProductById(self, referenciaProd):
         """
@@ -72,4 +71,3 @@ class Api:
         response = requests.get(url = self._urlApi + "items/",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
-        #TODO Tolerar que no se encuentre la referencia del producto.
