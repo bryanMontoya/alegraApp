@@ -5,6 +5,7 @@ import modelo
 import utils
 import utilsGenHeaders
 
+#TODO Refactor method.
 def procesarEnviables(conjuntoRegistros):
         """
         procesarEnviables(): Método encargado de procesar enviable sea remision o factura.
@@ -16,38 +17,44 @@ def procesarEnviables(conjuntoRegistros):
         api.setUrlApi(utils.urlApi)
 
         registroPrincipal = conjuntoRegistros[0]        
-                
-        idCliente = api.getClientById(identification = registroPrincipal['clienteid'])        
-        payload = {
-            'date': str(registroPrincipal['fecha'].date()),
-            'dueDate': str(registroPrincipal['fechavencimiento'].date()),
-            'client': idCliente,            
-            'termsConditions' : utils.terminosCondiciones()
-        }
+        
+        try:
+            idCliente = api.getClientById(identification = registroPrincipal['clienteid'])        
+        except:
+            print("Error consultando la informacion del cliente. " + 
+                    "Verifique que esta identificación " + str(registroPrincipal['clienteid']) + 
+                    " se encuentre asociada a un cliente en Alegra.")
+        else:            
+            payload = {
+                'date': str(registroPrincipal['fecha'].date()),
+                'dueDate': str(registroPrincipal['fechavencimiento'].date()),
+                'client': idCliente,            
+                'termsConditions' : utils.terminosCondiciones()
+            }
 
-        items = []
-        for registro in conjuntoRegistros:
-            idProducto = api.getProductById(referenciaProd = registro['referencia'])        
-            item = {
-                'id': idProducto,
-                'price': registro['precio'],
-                'quantity': registro['cantidad'],   
-                'reference': registro['referencia']
-            }            
-            items.append(item)                              
-        payload['items'] = items                
+            items = []
+            for registro in conjuntoRegistros:
+                idProducto = api.getProductById(referenciaProd = registro['referencia'])        
+                item = {
+                    'id': idProducto,
+                    'price': registro['precio'],
+                    'quantity': registro['cantidad'],   
+                    'reference': registro['referencia']
+                }            
+                items.append(item)                              
+            payload['items'] = items                
 
-        #Para campos que no se comparten.
-        if registroPrincipal['fact / remis'].lower() == 'facturado':
-            payload['anotation'] = """Favor consignar en la cta de ahorros Bancolombia #412 
-                    00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
-            respuesta = api.enviarFactura(payload)
-        elif registroPrincipal['fact / remis'].lower() == 'remisionado':
-            payload['anotation'] = str(registroPrincipal['transportadora']) + ' ' + str(registroPrincipal['guia']) + '*' + str(registroPrincipal['numeropaquetes'])
-            respuesta = api.enviarRemision(payload)
+            #Para campos que no se comparten.
+            if registroPrincipal['fact / remis'].lower() == 'facturado':
+                payload['anotation'] = """Favor consignar en la cta de ahorros Bancolombia #412 
+                        00 00 0219 o en cta ahorros Davivienda #39 4000 054 707 a nombre de Samuel Rendon SAS.""", #TODO Anotaciones en txt
+                respuesta = api.enviarFactura(payload)
+            elif registroPrincipal['fact / remis'].lower() == 'remisionado':
+                payload['anotation'] = str(registroPrincipal['transportadora']) + ' ' + str(registroPrincipal['guia']) + '*' + str(registroPrincipal['numeropaquetes'])
+                respuesta = api.enviarRemision(payload)
 
-        print(respuesta)                    
-    
+            print(respuesta)                    
+        
     #TODO status code respuesta api.
 '''if response.status_code == 201:                        
         excel = modelo.archivoExcel(pathExcel = utils.pathExcelFile)
@@ -82,7 +89,6 @@ def main():
 if __name__ == '__main__':
     main()    
 
-#TODO Generar token solo al inicio del programa.
 #TODO Resiliente a caidas de red.
 #TODO tax == IVA? Objeto
 #TODO Tolerar que los llamados no funcionen.
