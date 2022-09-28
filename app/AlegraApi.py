@@ -1,5 +1,3 @@
-"""Api"""
-
 import json
 import requests
 
@@ -28,6 +26,7 @@ class Api:
         Params: dict payload: Factura a enviar.
         Retorna respuesta http
         """
+        print("Enviando Factura a la Api de Alegra.")
         respuesta = requests.post(url = self._urlApi + "invoices/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
@@ -38,6 +37,7 @@ class Api:
         Params: dict payload: Remisión a enviar.
         Retorna respuesta http.
         """
+        print("Enviando Remision a la Api de Alegra.")
         respuesta = requests.post(url = self._urlApi + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
@@ -64,7 +64,7 @@ class Api:
         Retorna int, id del producto.
         """
         params = {
-            "reference" : int(referenciaProd),
+            "reference" : referenciaProd,
             "order_field" : "id",
             "limit"  : 1
         }

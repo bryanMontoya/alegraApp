@@ -1,14 +1,14 @@
-"""Utiles"""
+import yaml
 
-pathExcelFile = 'Libro1 - copia.xlsx'
-pathConfig = "Configuracion.txt"
-pathTermsCond = "TerminosCondiciones.txt"
-urlApi = "https://api.alegra.com/api/v1/"
+def leerYaml():
+    """Lee archivo de configuracion y lo devuelve como diccionario."""
+    with open("application.yml", "r") as stream:
+        return yaml.safe_load(stream)
 
-def terminosCondiciones():
-    "Para leer txt de terminos y condiciones."
+def leerTxt(path):
+    """Para leer txt de terminos y condiciones."""
     variables = []
-    with open(pathTermsCond, 'r') as archivo:
+    with open(path, 'r') as archivo:
         lineas = archivo.readlines()
         for linea in lineas:
             variables.append(linea.strip('\n'))

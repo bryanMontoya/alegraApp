@@ -1,0 +1,7 @@
+rutas:
+  excel: Libro1 - copia.xlsx
+  credenciales: Configuracion.txt
+  RemisionTyC: RemisionTyC.txt
+  FacturaTyC: FacturaTyC.txt
+  FacturaNotas: FacturaNotas.txt
+  apiAlegra: https://api.alegra.com/api/v1/
