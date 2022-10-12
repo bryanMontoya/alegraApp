@@ -47,7 +47,8 @@ class Api:
         getClientById(): Método encargado de consultar un cliente por su identificación.
         Params: int identificacion: Identificación del cliente.
         Retorna int, id del cliente.
-        """
+        """                
+        print(int(identification))
         params = {
             "identification" : int(identification),
             "order_field" : "id",
@@ -63,8 +64,9 @@ class Api:
         Params: str referenciaProd: Referencia.
         Retorna int, id del producto.
         """
+        print(int(referenciaProd))
         params = {
-            "reference" : referenciaProd,
+            "reference" : int(referenciaProd),
             "order_field" : "id",
             "limit"  : 1
         }

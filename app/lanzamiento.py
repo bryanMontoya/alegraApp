@@ -28,7 +28,7 @@ def procesarEnviables(conjuntoRegistros):
             try:
                 idProducto = api.getProductById(referenciaProd = registro['referencia'])
             except:
-                print("Error consultando informacion del producto. Valide que la referencia número " + str (registro['referencia'])
+                print("Error consultando informacion del producto. Valide que la referencia número " + str(registro['referencia'])
                         + ", se encuentre asociada a un producto registrado en Alegra.")
                 falloProducto = True
                 break
@@ -87,7 +87,7 @@ def validarTax(tax):
     """Valida el id a enviar de acuerdo al iva en el excel.""" 
     if (tax == 0.19 or tax == 19):
         return 3
-    elif (tax == 0.5 or tax == 5):
+    elif (tax == 0.05 or tax == 5):
         return 2
     return 1
 
