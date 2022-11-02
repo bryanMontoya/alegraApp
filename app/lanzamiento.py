@@ -2,11 +2,13 @@ import alegraApi
 import excel
 import utils
 import autorizacion
+from openpyxl import load_workbook
 
-#TODO Method Refactor
+FACTREM = 'fact/remis'
+
 def procesar_enviables(conjunto_registros):
     """Método encargado de procesar enviable sea remision o factura.
-    Params: lista Conjunto de registros a enviar."""    
+    Params: lista Conjunto de registros a enviar."""
     api = alegraApi.Api()
     api.set_headers(autorizacion.gen_basic_token())
     api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
@@ -15,19 +17,20 @@ def procesar_enviables(conjunto_registros):
     if registro_principal['estado'].lower() == 'pendiente':
         try:
             id_cliente = api.get_client_by_id(identification = registro_principal['clienteid'])
-        except:
-            print("Error consultando la informacion del cliente. Valide que la identificación número " + str(registro_principal['clienteid'])
-                    + ", se encuentre asociada a un cliente registrado en Alegra.")
-        else:            
-            fallo_producto = False
-            items = []
+        except IndexError:
+            print("Error consultando la informacion del cliente. Valide que la identificación número " + str(registro_principal['clienteid']) + ", se encuentre asociada a un cliente registrado en Alegra.")
+        except Exception:
+            pass
+        else:
+            fallo_producto, items = False, []             
             for registro in conjunto_registros:
                 try:
                     id_producto = api.get_product_by_id(referencia = registro['referencia'])
-                except:
-                    print("Error consultando informacion del producto. Valide que la referencia número " + str(registro['referencia'])
-                            + ", se encuentre asociada a un producto registrado en Alegra.")
+                except IndexError:
+                    print("Error consultando informacion del producto. Valide que la referencia número " + str(registro['referencia']) + ", se encuentre asociada a un producto registrado en Alegra.")
                     fallo_producto = True
+                    break
+                except Exception:
                     break
                 else:
                     item = {
@@ -41,21 +44,30 @@ def procesar_enviables(conjunto_registros):
                     }
                     items.append(item)
             
-            payload = {
-                'date': str(registro_principal['fecha'].date()),
-                'dueDate': str(registro_principal['fechavencimiento'].date()),
-                'client': id_cliente,
-            }
             if not(fallo_producto):
-                payload['items'] = items
-                if registro_principal['fact/remis'].lower() == 'factura':
-                    payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas'])
-                    payload['termsConditions'] : utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])  # type: ignore
+                payload = generar_payload(id_cliente, registro_principal, items)
+                if registro_principal[FACTREM].lower() == 'factura':
                     respuesta_envio = api.enviar_factura(payload)
-                elif registro_principal['fact/remis'].lower() == 'remision':
-                    payload['observations'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['numeropaquetes'])
-                    payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])
+                elif registro_principal[FACTREM].lower() == 'remision':
                     respuesta_envio = api.enviar_remision(payload)
+                else:
+                    print("No se reconoce entre factura o remision.")                   
+                
+def generar_payload(id_cliente, registro_principal, items):
+    """Encargada de generar el json completo."""
+    payload = {
+        'client' : id_cliente,
+        'date' : str(registro_principal['fecha'].date()),
+        'dueDate' : str(registro_principal['fechavencimiento'].date()),  
+        'items' : items
+        }
+    if registro_principal[FACTREM].lower() == 'factura':
+        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas'])
+        payload['termsConditions'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])
+    elif registro_principal[FACTREM].lower() == 'remision':
+        payload['observations'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['numeropaquetes'])
+        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])
+    return payload
 
 def cambiar_estado(response):
     """Cambiar estado."""
