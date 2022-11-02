@@ -1,5 +1,5 @@
 rutas:
-  excel: Libro1 - copia.xlsx
+  excel: RegistrosApi.xlsx
   credenciales: Configuracion.txt
   RemisionTyC: RemisionTyC.txt
   FacturaTyC: FacturaTyC.txt

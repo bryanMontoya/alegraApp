@@ -1,4 +1,4 @@
-import alegraApi
+import alegra
 import excel
 import utils
 import autorizacion
@@ -6,10 +6,10 @@ from openpyxl import load_workbook
 
 FACTREM = 'fact/remis'
 
-def procesar_enviables(conjunto_registros):
+def procesar_enviables(conjunto_registros, index):
     """Método encargado de procesar enviable sea remision o factura.
     Params: lista Conjunto de registros a enviar."""
-    api = alegraApi.Api()
+    api = alegra.Api()
     api.set_headers(autorizacion.gen_basic_token())
     api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
 
@@ -22,7 +22,7 @@ def procesar_enviables(conjunto_registros):
         except Exception:
             pass
         else:
-            fallo_producto, items = False, []             
+            fallo_producto, items = False, []
             for registro in conjunto_registros:
                 try:
                     id_producto = api.get_product_by_id(referencia = registro['referencia'])
@@ -47,18 +47,20 @@ def procesar_enviables(conjunto_registros):
             if not(fallo_producto):
                 payload = generar_payload(id_cliente, registro_principal, items)
                 if registro_principal[FACTREM].lower() == 'factura':
-                    respuesta_envio = api.enviar_factura(payload)
+                    response = api.enviar_factura(payload)
                 elif registro_principal[FACTREM].lower() == 'remision':
-                    respuesta_envio = api.enviar_remision(payload)
-                else:
-                    print("No se reconoce entre factura o remision.")                   
+                    response = api.enviar_remision(payload)
+                else:          
+                    response = None          
+                    print("No se reconoce entre factura o remision.")
+                cambiar_estado(response, registro = index[0])
                 
 def generar_payload(id_cliente, registro_principal, items):
     """Encargada de generar el json completo."""
     payload = {
         'client' : id_cliente,
         'date' : str(registro_principal['fecha'].date()),
-        'dueDate' : str(registro_principal['fechavencimiento'].date()),  
+        'dueDate' : str(registro_principal['fechavencimiento'].date()),
         'items' : items
         }
     if registro_principal[FACTREM].lower() == 'factura':
@@ -69,32 +71,39 @@ def generar_payload(id_cliente, registro_principal, items):
         payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])
     return payload
 
-def cambiar_estado(response):
+def cambiar_estado(response, registro):
     """Cambiar estado."""
+    print(response.status_code)
     if response.status_code == 201:
-        print("Cambiar estado")
+        workbook = load_workbook(filename = utils.leer_config()['rutas']['excel'])
+        sheet = workbook.active
+        space = "X" + str(registro + 2)
+        sheet[space] = "Cargado"
+        workbook.save(filename = utils.leer_config()['rutas']['excel'])
 
 def procesar_conjuntos(registros, filas_vacias_index):
     """procesarConjuntos: Identificar productos que pertenecen a un mismo cliente.
     Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos.
     """
     print("Generando estructura para facturas y remisiones.")
-    conjunto = []
+    conjunto, index = [], []
     for i, j in enumerate(registros):
         if (i not in filas_vacias_index):
             #Juntar registros pertenecientes a mismo enviable.
             conjunto.append(j)
+            index.append(i)
         else:
             if (len(conjunto) > 0):
                 #Procesar conjunto de registros.
-                procesar_enviables(conjunto)                
-                conjunto.clear()    
+                procesar_enviables(conjunto, index)
+                conjunto.clear()
+                index.clear()
     if (len(conjunto) > 0):
-        #Procesar conjunto de registros.        
-        procesar_enviables(conjunto)
+        #Procesar conjunto de registros.
+        procesar_enviables(conjunto, index)
 
 def validar_tax(tax):
-    """Valida el id a enviar de acuerdo al iva en el excel.""" 
+    """Valida el id a enviar de acuerdo al iva en el excel."""
     if (tax == 0.19 or tax == 19):
         return 3
     elif (tax == 0.05 or tax == 5):
@@ -104,7 +113,7 @@ def validar_tax(tax):
 def main():
     enviables = excel.archivo_excel(path_excel = utils.leer_config()['rutas']['excel'])
     print("Leyendo registros del archivo Excel.")
-    registros, filas_vacias_index = enviables.leer_registros()    
+    registros, filas_vacias_index = enviables.leer_registros()
     procesar_conjuntos(registros, filas_vacias_index)
 
 if __name__ == '__main__':
@@ -112,4 +121,3 @@ if __name__ == '__main__':
 
 #TODO Leer txt como una sola linea aunque sean varias.
 #TODO referencia de productos numeros enteros problemas con decimal.
-#TODO Registros en estado diferente de enviado.

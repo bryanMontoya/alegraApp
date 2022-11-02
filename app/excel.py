@@ -11,13 +11,11 @@ class archivo_excel:
         self.__vacias = None
 
     def leer_registros(self):
-        """
-        leer(): Método encargado de leer el documento de excel.
-        Retorna Lista de registros pendientes y lista con la posicion de registros vacios.
-        """
-        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES")   #Leer excel como dataframe, extraer columnas y registros.
-        df = df.replace(r'^\s*$', np.NaN, regex = True)                             #Espacios en blanco como Nan.
-        nulos = Counter(np.where(pd.isnull(df))[0]).most_common()                   #Saber cuales filas son vacias.
+        """Método encargado de leer el documento de excel.
+        Retorna Lista de registros pendientes y lista con la posicion de registros vacios."""
+        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES") #Leer excel como dataframe, extraer columnas y registros.
+        df = df.replace(r'^\s*$', np.NaN, regex = True)                  #Espacios en blanco como Nan.
+        nulos = Counter(np.where(pd.isnull(df))[0]).most_common()        #Saber cuales filas son vacias.
         self.__vacias = [x[0] for x in nulos if x[1] == len(df.columns)]
 
         #Conocer nombres columnas.
