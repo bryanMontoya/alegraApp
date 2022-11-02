@@ -5,6 +5,7 @@ import autorizacion
 from openpyxl import load_workbook
 
 FACTREM = 'fact/remis'
+EXCELPATH = utils.leer_config()['rutas']['excel']
 
 def procesar_enviables(conjunto_registros, index):
     """Método encargado de procesar enviable sea remision o factura.
@@ -75,11 +76,11 @@ def cambiar_estado(response, registro):
     """Cambiar estado."""
     print(response.status_code)
     if response.status_code == 201:
-        workbook = load_workbook(filename = utils.leer_config()['rutas']['excel'])
+        workbook = load_workbook(filename = EXCELPATH)
         sheet = workbook.active
         space = "X" + str(registro + 2)
         sheet[space] = "Cargado"
-        workbook.save(filename = utils.leer_config()['rutas']['excel'])
+        workbook.save(filename = EXCELPATH)
 
 def procesar_conjuntos(registros, filas_vacias_index):
     """procesarConjuntos: Identificar productos que pertenecen a un mismo cliente.
@@ -111,13 +112,16 @@ def validar_tax(tax):
     return 1
 
 def main():
-    enviables = excel.archivo_excel(path_excel = utils.leer_config()['rutas']['excel'])
+    enviables = excel.archivo_excel(path_excel = EXCELPATH)
     print("Leyendo registros del archivo Excel.")
-    registros, filas_vacias_index = enviables.leer_registros()
-    procesar_conjuntos(registros, filas_vacias_index)
+    try:
+        registros, filas_vacias_index = enviables.leer_registros()
+    except FileNotFoundError:
+        print("Archivo de excel no encontrado. Verifique el nombre del archivo: " + EXCELPATH)
+    else:
+        procesar_conjuntos(registros, filas_vacias_index)
 
 if __name__ == '__main__':
     main()
 
-#TODO Leer txt como una sola linea aunque sean varias.
-#TODO referencia de productos numeros enteros problemas con decimal.
+#TODO Permision denied, cambiar estado, con archivo abierto.
