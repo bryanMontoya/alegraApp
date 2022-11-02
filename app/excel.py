@@ -2,15 +2,15 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 
-class archivoExcel:
+class archivo_excel:
     """Clase para archivo de excel."""
 
-    def __init__(self, pathExcel):
-        self.path = pathExcel
-        self.__registrosPendientes = None
+    def __init__(self, path_excel):
+        self.path = path_excel
+        self.__registros = None
         self.__vacias = None
 
-    def leerRegistrosPendientes(self):
+    def leer_registros(self):
         """
         leer(): Método encargado de leer el documento de excel.
         Retorna Lista de registros pendientes y lista con la posicion de registros vacios.
@@ -25,6 +25,6 @@ class archivoExcel:
         registros = df.values.tolist()
 
         #Convertir dataframe a una lista de diccionarios.
-        self.__registrosPendientes = [{colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros]
+        self.__registros = [{colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros]
 
-        return self.__registrosPendientes, self.__vacias
+        return self.__registros, self.__vacias

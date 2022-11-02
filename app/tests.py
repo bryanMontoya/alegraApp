@@ -1,16 +1,30 @@
-from cmath import nan
-import pandas as pd
+"""from openpyxl import load_workbook
+ 
+#load excel file
+workbook = load_workbook(filename = "Libro1 - copia.xlsx")
+ 
+#open workbook
+sheet = workbook.active
+ 
+#modify the desired cell
+sheet["X3"] = "Cargado"
+ 
+#save the file
+workbook.save(filename="Libro2 - copia.xlsx")"""
 
-df = pd.read_excel("Libro1 - copia.xlsx", index_col = None, sheet_name = "ENVIABLES")
+import autorizacion
+import requests
+import json
+params = {
+    "identifications" : int(2),
+    "order_field" : "id",
+    "limit"  : 1
+}
+try:
+    response = requests.get(url = "https://api.alegra.com/api/v1/" + "contacts/",
+        headers = autorizacion.gen_basic_token(), params = params)
+    print(json.loads(response.text))
+except Exception:
+    print("Error de conexion")
 
-print(df)
-mlist = df['Estado'].tolist()
 
-print(mlist)
-
-
-new_df = pd.DataFrame({'Estado' : [None,2,5,6,7,2,6,8,'Hola',"Amigos"]})
-
-
-df.update(new_df)
-print(df)

@@ -1,10 +1,10 @@
 import base64
 import utils
 
-def genBasicToken():
+def gen_basic_token():
     """Se lee archivo donde se guarda email y token entregado por alegra, se genera Token."""
     variables = []
-    with open(utils.leerYaml()['rutas']['credenciales'], 'r') as archivo:
+    with open(utils.leer_config()['rutas']['credenciales'], 'r') as archivo:
         lineas = archivo.readlines()
         for linea in lineas:
             variables.append(linea.strip('\n'))
@@ -13,5 +13,5 @@ def genBasicToken():
 
     config = EMAIL + ":" + TOKEN
     BASICTOKEN = base64.b64encode(config.encode('ascii')).decode('ascii')
-    headersApi = {"Authorization" : "Basic " + BASICTOKEN}
-    return headersApi
+    headers = {"Authorization" : "Basic " + BASICTOKEN}
+    return headers

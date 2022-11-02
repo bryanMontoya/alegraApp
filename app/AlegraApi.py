@@ -6,70 +6,68 @@ class Api:
 
     def __init__(self):
         self._headers = None
-        self._urlApi = None
+        self._url_api = ""
 
-    def getHeaders(self):
+    def get_headers(self):
         return self._headers
 
-    def getUrl(self):
-        return self._urlApi
+    def get_url(self):
+        return self._url_api
 
-    def setHeaders(self, headers):
+    def set_headers(self, headers):
          self._headers = headers
 
-    def setUrlApi(self, urlApi):
-         self._urlApi = urlApi
+    def set_url_api(self, url_api):
+         self._url_api = url_api
 
-    def enviarFactura(self, payload):
+    def enviar_factura(self, payload):
         """
         enviarFactura(): Método encargado de enviar a la API de Alegra una factura.
         Params: dict payload: Factura a enviar.
         Retorna respuesta http
         """
         print("Enviando Factura a la Api de Alegra.")
-        respuesta = requests.post(url = self._urlApi + "invoices/",
+        respuesta = requests.post(url = self._url_api + "invoices/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
 
-    def enviarRemision(self, payload):
+    def enviar_remision(self, payload):
         """
         enviarRemision(): Método encargado de enviar a la API de Alegra una remisión.
         Params: dict payload: Remisión a enviar.
         Retorna respuesta http.
         """
         print("Enviando Remision a la Api de Alegra.")
-        respuesta = requests.post(url = self._urlApi + "remissions/",
+        respuesta = requests.post(url = self._url_api + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
 
-    def getClientById(self, identification):
+    def get_client_by_id(self, identification):
         """
         getClientById(): Método encargado de consultar un cliente por su identificación.
         Params: int identificacion: Identificación del cliente.
         Retorna int, id del cliente.
-        """                
-        print(int(identification))
+        """                        
         params = {
             "identification" : int(identification),
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self._urlApi + "contacts/",
+        response = requests.get(url = self._url_api + "contacts/",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
 
-    def getProductById(self, referenciaProd):
+    def get_product_by_id(self, referencia):
         """
         getProductById(): Método encargado de consultar el id de un producto dado su referencia.
         Params: str referenciaProd: Referencia.
         Retorna int, id del producto.
-        """
-        print(int(referenciaProd))
+        """        
         params = {
-            "reference" : int(referenciaProd),
+            "reference" : int(referencia),
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self._urlApi + "items/",
+        response = requests.get(url = self._url_api + "items/",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
