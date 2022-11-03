@@ -31,7 +31,7 @@ class Api:
     def enviar_remision(self, payload):
         """Método encargado de enviar a la API de Alegra una remisión.
         Params: dict payload: Remisión a enviar."""
-        print("Estupendo!! Enviando Remision a la Api de Alegra ^o^")
+        print("Estupendo !!! Enviando Remision a la Api de Alegra ^o^")
         respuesta = requests.post(url = self._url_api + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
