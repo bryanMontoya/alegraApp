@@ -13,18 +13,14 @@ class archivo_excel:
     def leer_registros(self):
         """Método encargado de leer el documento de excel.
         Retorna Lista de registros pendientes y lista con la posicion de registros vacios."""
-        try:
-            df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES") 
-        except FileNotFoundError:            
-            raise FileNotFoundError
-        else:
-            df = df.replace(r'^\s*$', np.NaN, regex = True)                  #Espacios en blanco como Nan.
-            nulos = Counter(np.where(pd.isnull(df))[0]).most_common()        #Saber cuales filas son vacias.
-            self.__vacias = [x[0] for x in nulos if x[1] == len(df.columns)]
-            #Conocer nombres columnas.
-            columnas = [key.lower() for key in df.columns]
-            registros = df.values.tolist()
-            #Convertir dataframe a una lista de diccionarios.
-            self.__registros = [{colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros]
+        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES") 
+        df = df.replace(r'^\s*$', np.NaN, regex = True)                  #Espacios en blanco como Nan.
+        nulos = Counter(np.where(pd.isnull(df))[0]).most_common()        #Saber cuales filas son vacias.
+        self.__vacias = [x[0] for x in nulos if x[1] == len(df.columns)]
+        #Conocer nombres columnas.
+        columnas = [key.lower() for key in df.columns]
+        registros = df.values.tolist()
+        #Convertir dataframe a una lista de diccionarios.
+        self.__registros = [{colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros]
 
         return self.__registros, self.__vacias

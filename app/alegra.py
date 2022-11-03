@@ -23,7 +23,7 @@ class Api:
     def enviar_factura(self, payload):
         """Método encargado de enviar a la API de Alegra una factura.
         Params: dict payload: Factura a enviar."""
-        print("Enviando Factura a la Api de Alegra.")
+        print("Magnífico !!! Enviando Factura a la Api de Alegra ^_~")
         respuesta = requests.post(url = self._url_api + "invoices/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta
@@ -31,7 +31,7 @@ class Api:
     def enviar_remision(self, payload):
         """Método encargado de enviar a la API de Alegra una remisión.
         Params: dict payload: Remisión a enviar."""
-        print("Enviando Remision a la Api de Alegra.")
+        print("Estupendo!! Enviando Remision a la Api de Alegra ^o^")
         respuesta = requests.post(url = self._url_api + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
         return respuesta

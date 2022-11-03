@@ -19,7 +19,7 @@ def procesar_enviables(conjunto_registros, index):
         try:
             id_cliente = api.get_client_by_id(identification = registro_principal['clienteid'])
         except IndexError:
-            print("Error consultando la informacion del cliente. Valide que la identificación número " + str(registro_principal['clienteid']) + ", se encuentre asociada a un cliente registrado en Alegra.")
+            print("Error consultando la informacion del cliente. Valide que la identificación número " + str(registro_principal['clienteid']) + ", se encuentre asociada a un cliente registrado en Alegra =)")
         except Exception:
             pass
         else:
@@ -28,7 +28,7 @@ def procesar_enviables(conjunto_registros, index):
                 try:
                     id_producto = api.get_product_by_id(referencia = registro['referencia'])
                 except IndexError:
-                    print("Error consultando informacion del producto. Valide que la referencia número " + str(registro['referencia']) + ", se encuentre asociada a un producto registrado en Alegra.")
+                    print("Error consultando informacion del producto. Valide que la referencia número " + str(registro['referencia']) + ", se encuentre asociada a un producto registrado en Alegra =)")
                     fallo_producto = True
                     break
                 except Exception:
@@ -53,7 +53,7 @@ def procesar_enviables(conjunto_registros, index):
                     response = api.enviar_remision(payload)
                 else:          
                     response = None          
-                    print("No se reconoce entre factura o remision.")
+                    print("No se reconoce entre factura o remision :P")
                 cambiar_estado(response, registro = index[0])
                 
 def generar_payload(id_cliente, registro_principal, items):
@@ -86,7 +86,7 @@ def procesar_conjuntos(registros, filas_vacias_index):
     """procesarConjuntos: Identificar productos que pertenecen a un mismo cliente.
     Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos.
     """
-    print("Generando estructura para facturas y remisiones.")
+    print("Loading!!! Generando estructura para facturas y remisiones 🚀🚀")
     conjunto, index = [], []
     for i, j in enumerate(registros):
         if (i not in filas_vacias_index):
@@ -112,16 +112,20 @@ def validar_tax(tax):
     return 1
 
 def main():
-    enviables = excel.archivo_excel(path_excel = EXCELPATH)
-    print("Leyendo registros del archivo Excel.")
     try:
-        registros, filas_vacias_index = enviables.leer_registros()
+        open(EXCELPATH, "r+")
     except FileNotFoundError:
-        print("Archivo de excel no encontrado. Verifique el nombre del archivo: " + EXCELPATH)
+        print("Archivo no encontrado :-( Verifica que el archivo " + EXCELPATH + " existe :-)")
+    except PermissionError:
+        print("No se pudo abrir el archivo! Por favor cierra el Excel :)")
     else:
+        enviables = excel.archivo_excel(path_excel = EXCELPATH)
+        registros, filas_vacias_index = enviables.leer_registros()
+        print("Genial Leyendo registros del archivo Excel!")
         procesar_conjuntos(registros, filas_vacias_index)
+    finally:
+        input("Presiona cualquier tecla para salir ^_^")
+
 
 if __name__ == '__main__':
     main()
-
-#TODO Permision denied, cambiar estado, con archivo abierto.
