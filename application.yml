@@ -1,5 +1,5 @@
 rutas:
-  excel: RegistrosApi.xlsx
+  excel: Registros.xlsx
   credenciales: Configuracion.txt
   RemisionTyC: RemisionTyC.txt
   FacturaTyC: FacturaTyC.txt

@@ -13,3 +13,11 @@ def leer_txt(path):
         for linea in lineas:
             variables.append(linea.strip('\n'))
     return variables[0]
+
+def validar_tax(tax):
+    """Valida el id a enviar de acuerdo al iva en el excel."""
+    if (tax == 0.19 or tax == 19):
+        return 3
+    elif (tax == 0.05 or tax == 5):
+        return 2
+    return 1
