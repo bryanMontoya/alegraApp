@@ -111,7 +111,7 @@ def main():
         print("No se pudo abrir el archivo! Por favor cierra el Excel :)")
     else:
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
-        registros, filas_vacias_index = enviables.leer_registros()
+        registros, filas_vacias_index = enviables.leer_registros()        
         print("Genial Leyendo registros del archivo Excel!")
         procesar_conjuntos(registros, filas_vacias_index)
     finally:
@@ -122,3 +122,4 @@ if __name__ == '__main__':
     main()
 
 #TODO Buscar index de estado, no quemar columna.
+#TODO Read all uhasta columna especifica.
