@@ -105,23 +105,31 @@ def procesar_conjuntos(registros, filas_vacias_index):
         procesar_enviables(conjunto, index, api)
 
 def main():
+    print("-----------------------------------------------------")
+    print("     !HELLO! !Alegra está despegandoooo!🚀🚀🚀     ")
+    print("-----------------------------------------------------")
     try:
         open(EXCELPATH, "r+")
     except FileNotFoundError:
-        print("Archivo no encontrado :-( Verifica que el archivo " + EXCELPATH + " existe :-)")
+        print("Archivo no encontrado 😢  Verifica que el archivo " + EXCELPATH + " existe 👍 ")
     except PermissionError:
         print("No se pudo abrir el archivo! Por favor cierra el Excel :)")
     else:
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
-        registros, filas_vacias_index = enviables.leer_registros()        
-        print("Genial!!! Leyendo registros del archivo Excel!")
+        registros, filas_vacias_index = enviables.leer_registros()                
         procesar_conjuntos(registros, filas_vacias_index)
     finally:
         input("Presiona enter para salir ^_^")
-
 
 if __name__ == '__main__':    
     main()
 
 #TODO Buscar index de estado, no quemar columna.
 #TODO Read all uhasta columna especifica.
+#TODO Beauty print
+#TODO Refactor main methods
+#TODO Functional test.
+#TODO Generate .exe
+#TODO Library to create objetc from a excel.
+#TODO Mejor forma de hacer print.
+#TODO test de precios, excel vs alegra.
