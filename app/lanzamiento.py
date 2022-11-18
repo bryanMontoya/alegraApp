@@ -46,8 +46,10 @@ def procesar_enviables(conjunto_registros, index, api):
                 payload = generar_payload(id_cliente, registro_principal, items)
                 if registro_principal[FACTREM].lower() == 'factura':
                     response = api.enviar_factura(payload)
+                    print("Factura cargada! ID: " + str(registro_principal['clienteid']))
                 elif registro_principal[FACTREM].lower() == 'remision':
                     response = api.enviar_remision(payload)
+                    print("Remision cargada! ID: " + str(registro_principal['clienteid']))
                 else:
                     response = None
                     print("No se reconoce entre factura o remision :P")
@@ -112,7 +114,7 @@ def main():
     else:
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
         registros, filas_vacias_index = enviables.leer_registros()        
-        print("Genial Leyendo registros del archivo Excel!")
+        print("Genial!!! Leyendo registros del archivo Excel!")
         procesar_conjuntos(registros, filas_vacias_index)
     finally:
         input("Presiona enter para salir ^_^")

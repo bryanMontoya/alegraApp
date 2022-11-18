@@ -1,4 +1,6 @@
 # alegraApp
 
-1. pip install -r requirements.txt
+Despues de clonar proyecto:
+
+1. Instalar librerías: pip install -r requirements.txt
 2. Run lanzamiento.py
