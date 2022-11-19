@@ -56,18 +56,18 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
         payload['termsConditions'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])
 
         response = api.enviar_factura(payload)
-        print("Factura cargada! 🧮🧮 ID: " + str(registro_principal['clienteid']))
+        print("!Factura cargada! 💰💰 ID: " + str(registro_principal['clienteid']) + "\n")
 
     elif registro_principal[FACTREM].lower() == 'remision':
         payload['observations'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['# paquetes'])
         payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])
 
         response = api.enviar_remision(payload)
-        print("Remision cargada! 🧮🧮 ID: " + str(registro_principal['clienteid']))
+        print("!Remision cargada! ✅✅ ID: " + str(registro_principal['clienteid']) + "\n")
 
     else:
         response = None
-        print("No se reconoce entre factura o remision :P")
+        print("No se reconoce entre factura o remision 😢😢 ID: " + str(registro_principal['clienteid']) + "\n")
     return response
 
 def cambiar_estado(response, registro):
@@ -82,7 +82,7 @@ def procesar_conjuntos(registros, filas_vacias_index):
     api = alegra.Api()
     api.set_headers(autorizacion.gen_basic_token())
     api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
-    print("🧮🧮 Generando estructura para facturas y remisiones 🧮🧮" )
+    print("\n🧮🧮 Generando estructura para facturas y remisiones 🧮🧮 \n" )
 
     conjunto, index = [], []
     for i, j in enumerate(registros):
