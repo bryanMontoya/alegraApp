@@ -71,7 +71,7 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
     return response
 
 def cambiar_estado(response, registro):
-    """Cambiar estado de columna Pendiente a Cargado."""
+    """Valida que la respuesta del envío sea exitosa."""
     if response != None and response.status_code == 201:
         excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
         excel_obj.cambiar_estado(registro);
@@ -126,8 +126,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-#TODO Refactor main methods
-#TODO Functional test.
-#TODO Generate .exe
 #TODO Library to create objetc from a excel.
-#TODO Mejor forma de hacer print.

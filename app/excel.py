@@ -28,6 +28,7 @@ class archivo_excel:
         return self.__registros, self.__vacias
     
     def cambiar_estado(self, registro):
+        """Cambiar estado de columna Pendiente a Cargado."""
         workbook = load_workbook(filename = self.path)
         sheet = workbook.active
         space = "AA" + str(registro + 2)
