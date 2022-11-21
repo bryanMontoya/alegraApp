@@ -1,10 +1,8 @@
 import yaml
-from pathlib import Path
 
 def leer_config():
-    """Lee archivo de configuracion y lo devuelve como diccionario."""
-    filepath = Path(__file__).parent / "conf/application.yml"
-    with open(filepath, "r") as stream:
+    """Lee archivo de configuracion y lo devuelve como diccionario."""    
+    with open("application.yml", "r") as stream:
         return yaml.safe_load(stream)
 
 def leer_txt(path):
