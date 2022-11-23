@@ -14,7 +14,7 @@ class archivo_excel:
     def leer_registros(self):
         """Método encargado de leer el documento de excel.
         Retorna Lista de registros pendientes y lista con la posicion de registros vacios."""
-        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES", usecols = "A:AA") 
+        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES", usecols = "A:Z")
         #Espacios en blanco como Nan.
         df = df.replace(r'^\s*$', np.NaN, regex = True)
         #Saber cuales filas son vacias.
@@ -31,6 +31,6 @@ class archivo_excel:
         """Cambiar estado de columna Pendiente a Cargado."""
         workbook = load_workbook(filename = self.path)
         sheet = workbook.active
-        space = "AA" + str(registro + 2)
+        space = "Z" + str(registro + 2)
         sheet[space] = "Cargado"
         workbook.save(filename = self.path)

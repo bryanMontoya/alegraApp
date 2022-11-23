@@ -116,8 +116,12 @@ def main():
         print("Ocurrió un error 😢😢")
     else:
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
-        registros, filas_vacias_index = enviables.leer_registros()
-        procesar_conjuntos(registros, filas_vacias_index)
+        try:
+            registros, filas_vacias_index = enviables.leer_registros()
+        except ValueError:
+            print("No se encontró la pagina de ENVIABLES dentro del archivo 😢😢")
+        else:
+            procesar_conjuntos(registros, filas_vacias_index)
     finally:
         input("""
         🥱🥱 Presiona Enter para salir 🥱🥱
@@ -125,5 +129,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#TODO refactor folders
