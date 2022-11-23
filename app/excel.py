@@ -10,11 +10,12 @@ class archivo_excel:
         self.path = path_excel
         self.__registros = None
         self.__vacias = None
+        self.__sheet = "ENVIABLES"
 
     def leer_registros(self):
         """Método encargado de leer el documento de excel.
         Retorna Lista de registros pendientes y lista con la posicion de registros vacios."""
-        df = pd.read_excel(self.path, index_col = None, sheet_name = "ENVIABLES", usecols = "A:Z")
+        df = pd.read_excel(self.path, index_col = None, sheet_name = self.__sheet, usecols = "A:Z")
         #Espacios en blanco como Nan.
         df = df.replace(r'^\s*$', np.NaN, regex = True)
         #Saber cuales filas son vacias.
