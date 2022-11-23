@@ -10,6 +10,7 @@ def procesar_enviables(conjunto_registros, index, api):
     """Método encargado de procesar enviable sea remision o factura."""
 
     registro_principal = conjunto_registros[0]
+    #TODO Validar todos los campos del registro.
     if registro_principal['estado'].lower() == 'pendiente':
         try:
             id_cliente = api.get_client_by_id(identification = registro_principal['clienteid'])
@@ -82,6 +83,7 @@ def procesar_conjuntos(registros, filas_vacias_index):
     api = alegra.Api()
     api.set_headers(autorizacion.gen_basic_token())
     api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
+    #TODO CAmbiar este mensaje. NO siempre se envian las facturas o las remisiones.
     print("\n🧮🧮 Generando estructura para facturas y remisiones 🧮🧮 \n" )
 
     conjunto, index = [], []
@@ -94,7 +96,7 @@ def procesar_conjuntos(registros, filas_vacias_index):
             if (len(conjunto) > 0):
                 #Procesar conjunto de registros.
                 procesar_enviables(conjunto, index, api)
-                conjunto.clear()  
+                conjunto.clear()
                 index.clear()
     if (len(conjunto) > 0):
         #Procesar conjunto de registros.
