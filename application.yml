@@ -1,7 +1,7 @@
 rutas:
   excel: Registros.xlsx
-  credenciales: Configuracion.txt
-  RemisionTyC: RemisionTyC.txt
-  FacturaTyC: FacturaTyC.txt
-  FacturaNotas: FacturaNotas.txt
+  credenciales: conf\Configuracion.txt
+  RemisionTyC: notas\RemisionTyC.txt
+  FacturaTyC: notas\FacturaTyC.txt
+  FacturaNotas: notas\FacturaNotas.txt
   apiAlegra: https://api.alegra.com/api/v1/
