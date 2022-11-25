@@ -20,4 +20,6 @@ def validar_tax(tax):
         return 3
     elif (tax == 0.05 or tax == 5):
         return 2
-    return 1
+    elif (tax == 0.0 or tax == 0):
+        return 1
+    return None
