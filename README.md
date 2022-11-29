@@ -3,11 +3,6 @@
 ## Inicio
 La app se encarga de tomar los registros que se encuentran en el archivo de excel, y enviar cada conjunto de facturas o remisiones a la api de alegra según el estado de envío en el que se encuentre cada registro.
 
-
-**Tabla de Contenidos**
-
-[TOC]
-
 ## Instalación
 Despues de clonar proyecto:
 
