@@ -10,12 +10,11 @@ def procesar_enviables(conjunto_registros, index, api):
     """Método encargado de procesar enviable sea remision o factura."""
 
     registro_principal = conjunto_registros[0]
-    #TODO Validar todos los campos del registro.
     if registro_principal['estado'].lower() == 'pendiente':
         try:
             id_cliente = api.get_client_by_id(identification = registro_principal['clienteid'])
         except IndexError:
-            print("Error consultando la informacion del cliente😢😢 Valide que la identificación número " + str(registro_principal['clienteid']) + " se encuentre asociada a un cliente registrado en Alegra 🥱🥱")        
+            print("Error consultando la informacion del cliente😢😢 Valide que la identificación número " + str(registro_principal['clienteid']) + " se encuentre asociada a un cliente registrado en Alegra 🥱🥱")
         else:
             fallo_producto, items = False, []
             for registro in conjunto_registros:
@@ -42,7 +41,7 @@ def procesar_enviables(conjunto_registros, index, api):
             if not(fallo_producto):
                 response = generar_payload_send(id_cliente, registro_principal, items, api)
                 cambiar_estado(response, registro = index[0])
-                
+            
 def generar_payload_send(id_cliente, registro_principal, items, api):
     """Encargada de generar el json completoy enviar factura o remision a la api."""
     payload = {
@@ -77,12 +76,9 @@ def cambiar_estado(response, registro):
         excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
         excel_obj.cambiar_estado(registro);
 
-def procesar_conjuntos(registros, filas_vacias_index):
+def procesar_conjuntos(registros, filas_vacias_index, api):
     """Identificar productos que pertenecen a un mismo cliente.
     Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos."""
-    api = alegra.Api()
-    api.set_headers(autorizacion.gen_basic_token())
-    api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
     #TODO CAmbiar este mensaje. NO siempre se envian las facturas o las remisiones.
     print("\n🧮🧮 Generando estructura para facturas y remisiones 🧮🧮 \n" )
 
@@ -117,13 +113,16 @@ def main():
     except Exception:
         print("Ocurrió un error 😢😢")
     else:
+        api = alegra.Api()
+        api.set_headers(autorizacion.gen_basic_token())
+        api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
         try:
             registros, filas_vacias_index = enviables.leer_registros()
         except ValueError:
             print("No se encontró la pagina de ENVIABLES dentro del archivo 😢😢")
         else:
-            procesar_conjuntos(registros, filas_vacias_index)
+            procesar_conjuntos(registros, filas_vacias_index, api)
     finally:
         input("""
         🥱🥱 Presiona Enter para salir 🥱🥱
@@ -131,5 +130,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#TODO bad credentials.
