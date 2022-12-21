@@ -52,15 +52,15 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
         }
 
     if registro_principal[FACTREM].lower() == 'factura':
-        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas'])
+        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas']) + ' ' + str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + ' ' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
         payload['termsConditions'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])
 
         response = api.enviar_factura(payload)
         print("!Factura cargada! 💰💰 ID: " + str(registro_principal['clienteid']) + "\n")
 
     elif registro_principal[FACTREM].lower() == 'remision':
-        payload['observations'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['# paquetes'])
-        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])
+        payload['anotation'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
+        payload['comments'] = [utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])]
 
         response = api.enviar_remision(payload)
         print("!Remision cargada! ✅✅ ID: " + str(registro_principal['clienteid']) + "\n")
@@ -78,8 +78,7 @@ def cambiar_estado(response, registro):
 
 def procesar_conjuntos(registros, filas_vacias_index, api):
     """Identificar productos que pertenecen a un mismo cliente.
-    Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos."""
-    #TODO CAmbiar este mensaje. NO siempre se envian las facturas o las remisiones.
+    Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos."""    
     print("\n🧮🧮 Generando estructura para facturas y remisiones 🧮🧮 \n" )
 
     conjunto, index = [], []

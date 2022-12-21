@@ -50,7 +50,7 @@ class Api:
     def get_product_by_id(self, referencia):
         """Método encargado de consultar el id de un producto dado su referencia.
         Params: str referenciaProd: Referencia.
-        Retorna id del producto."""        
+        Retorna id del producto."""
         params = {
             "reference" : int(referencia),
             "order_field" : "id",
