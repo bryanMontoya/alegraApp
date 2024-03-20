@@ -133,3 +133,4 @@ dmypy.json
 *.exe
 
 .vscode
+.scannerwork

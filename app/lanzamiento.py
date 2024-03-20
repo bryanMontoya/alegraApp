@@ -1,7 +1,7 @@
-import alegra
 import excel
 import utils
-import autorizacion
+
+from alegra.alegra import AlegraService
 
 FACTREM = 'fact/remis'
 EXCELPATH = utils.leer_config()['rutas']['excel']
@@ -98,11 +98,7 @@ def procesar_conjuntos(registros, filas_vacias_index, api):
         procesar_enviables(conjunto, index, api)
 
 def main():
-    print("""
-        -----------------------------------------------------
-            🚀🚀🚀!AlegraApp está despegandoooo!🚀🚀🚀
-        -----------------------------------------------------
-        """)
+    print("🚀🚀🚀!AlegraApp está despegandoooo!🚀🚀🚀")
     try:
         open(EXCELPATH, "r+")
     except FileNotFoundError:
@@ -112,9 +108,7 @@ def main():
     except Exception:
         print("Ocurrió un error 😢😢")
     else:
-        api = alegra.Api()
-        api.set_headers(autorizacion.gen_basic_token())
-        api.set_url_api(utils.leer_config()['rutas']['apiAlegra'])
+        alegraService = AlegraService()       
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
         try:
             registros, filas_vacias_index = enviables.leer_registros()
