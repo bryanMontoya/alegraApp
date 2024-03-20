@@ -1,10 +1,10 @@
 import excel
-import utils
 
+from helpers.helpers import load_env, validar_tax, leer_txt
 from alegra.alegra import AlegraService
 
 FACTREM = 'fact/remis'
-EXCELPATH = utils.leer_config()['rutas']['excel']
+EXCELPATH = load_env()['rutas']['excel']
 
 def procesar_enviables(conjunto_registros, index, api):
     """Método encargado de procesar enviable sea remision o factura."""
@@ -33,7 +33,7 @@ def procesar_enviables(conjunto_registros, index, api):
                         'quantity': registro['cantidad'],
                         'reference': registro['ref'],
                         'tax' : [ {
-                                'id' : utils.validar_tax(registro['iva'])
+                                'id' : validar_tax(registro['iva'])
                             }]
                     }
                     items.append(item)
@@ -52,15 +52,15 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
         }
 
     if registro_principal[FACTREM].lower() == 'factura':
-        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas']) + ' ' + str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + ' ' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
-        payload['termsConditions'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])
+        payload['anotation'] = leer_txt(load_env()['rutas']['FacturaNotas']) + ' ' + str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + ' ' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
+        payload['termsConditions'] = leer_txt(load_env()['rutas']['FacturaTyC'])
 
         response = api.enviar_factura(payload)
         print("!Factura cargada! 💰💰 ID: " + str(registro_principal['clienteid']) + "\n")
 
     elif registro_principal[FACTREM].lower() == 'remision':
         payload['anotation'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
-        payload['comments'] = [utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])]
+        payload['comments'] = [leer_txt(load_env()['rutas']['RemisionTyC'])]
 
         response = api.enviar_remision(payload)
         print("!Remision cargada! ✅✅ ID: " + str(registro_principal['clienteid']) + "\n")
@@ -98,28 +98,27 @@ def procesar_conjuntos(registros, filas_vacias_index, api):
         procesar_enviables(conjunto, index, api)
 
 def main():
-    print("🚀🚀🚀!AlegraApp está despegandoooo!🚀🚀🚀")
+    print("🚀!AlegraApp está despegandoooo!🚀")
     try:
         open(EXCELPATH, "r+")
     except FileNotFoundError:
-        print("Excel no encontrado 😢😢  Verifica que el archivo con nombre: " + EXCELPATH + " existe 👍👍 ")
+        print("Excel no encontrado. Verifica que el archivo con nombre: " + EXCELPATH + " existe")
     except PermissionError:
-        print("No se pudo abrir el archivo 😢😢 Por favor cierra el Excel 👍👍")
+        print("No se pudo abrir el archivo. Por favor cierra el Excel")
     except Exception:
-        print("Ocurrió un error 😢😢")
+        print("Ocurrió un error")
     else:
-        alegraService = AlegraService()       
+        alegraService = AlegraService()
+        print(alegraService._headers)     
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
         try:
             registros, filas_vacias_index = enviables.leer_registros()
         except ValueError:
-            print("No se encontró la pagina de ENVIABLES dentro del archivo 😢😢")
+            print("No se encontró la pagina de ENVIABLES dentro del archivo")
         else:
-            procesar_conjuntos(registros, filas_vacias_index, api)
+            procesar_conjuntos(registros, filas_vacias_index, alegraService)
     finally:
-        input("""
-        🥱🥱 Presiona Enter para salir 🥱🥱
-        """)
+        input("Presiona Enter para salir")
 
 if __name__ == '__main__':
     main()

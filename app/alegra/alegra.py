@@ -1,14 +1,14 @@
 import json
 import requests
 
-import utils
+from helpers.helpers import load_env
 from alegra.authorization.authorization import Authorization
 
 class AlegraService:
 
     def __init__(self):
         self._headers = Authorization()
-        self._url = utils.leer_config()['rutas']['apiAlegra']
+        self._url = load_env()['rutas']['apiAlegra']
 
     def load_invoce(self, payload):
         """Carga a la API de Alegra una factura.
