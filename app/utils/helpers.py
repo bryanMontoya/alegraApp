@@ -1,6 +1,6 @@
 import yaml
 
-def leer_config():
+def read_config():
     """Lee archivo de configuracion y lo devuelve como diccionario."""
     with open("conf/application.yml", "r") as stream:
         return yaml.safe_load(stream)

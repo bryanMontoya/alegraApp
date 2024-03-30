@@ -1,30 +1,29 @@
 import excel
-import utils
 
+
+from utils.helpers import read_config,leer_txt,validar_tax
 from alegra.alegra import AlegraService
 
 FACTREM = 'fact/remis'
-EXCELPATH = utils.leer_config()['rutas']['excel']
+EXCELPATH = read_config()['rutas']['excel']
 
-def procesar_enviables(conjunto_registros, index, api):
+def procesar_enviables(conjunto_registros, index, api: AlegraService):
     """Método encargado de procesar enviable sea remision o factura."""
 
     registro_principal = conjunto_registros[0]
     if registro_principal['estado'].lower() == 'pendiente':
         try:
-            id_cliente = api.get_client_by_id(identification = registro_principal['clienteid'])
-        except IndexError:
+            id_cliente = api.get_client_by_id(id = registro_principal['clienteid'])
+        except:            
             print("Error consultando la informacion del cliente😢😢 Valide que la identificación número " + str(registro_principal['clienteid']) + " se encuentre asociada a un cliente registrado en Alegra 🥱🥱")
         else:
             fallo_producto, items = False, []
             for registro in conjunto_registros:
                 try:
-                    id_producto = api.get_product_by_id(referencia = registro['ref'])
-                except IndexError:
+                    id_producto = api.get_product_by_id(reference = registro['ref'])
+                except:
                     print("Error consultando informacion del producto😢😢 Valide que la referencia " + str(registro['ref']) + " se encuentre asociada a un producto registrado en Alegra 🥱🥱")
                     fallo_producto = True
-                    break
-                except Exception:
                     break
                 else:
                     item = {
@@ -33,7 +32,7 @@ def procesar_enviables(conjunto_registros, index, api):
                         'quantity': registro['cantidad'],
                         'reference': registro['ref'],
                         'tax' : [ {
-                                'id' : utils.validar_tax(registro['iva'])
+                                'id' : validar_tax(registro['iva'])
                             }]
                     }
                     items.append(item)
@@ -52,17 +51,17 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
         }
 
     if registro_principal[FACTREM].lower() == 'factura':
-        payload['anotation'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaNotas']) + ' ' + str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + ' ' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
-        payload['termsConditions'] = utils.leer_txt(utils.leer_config()['rutas']['FacturaTyC'])
+        payload['anotation'] = leer_txt(read_config()['rutas']['FacturaNotas']) + ' ' + str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + ' ' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
+        payload['termsConditions'] = leer_txt(read_config()['rutas']['FacturaTyC'])
 
-        response = api.enviar_factura(payload)
+        response = api.load_invoce(payload)
         print("!Factura cargada! 💰💰 ID: " + str(registro_principal['clienteid']) + "\n")
 
     elif registro_principal[FACTREM].lower() == 'remision':
         payload['anotation'] = str(registro_principal['transportadora']) + ' ' + str(registro_principal['guia']) + '*' + str(registro_principal['# paquetes']) + ' ' + str(registro_principal['empacador'])
-        payload['comments'] = [utils.leer_txt(utils.leer_config()['rutas']['RemisionTyC'])]
+        payload['comments'] = [leer_txt(read_config()['rutas']['RemisionTyC'])]
 
-        response = api.enviar_remision(payload)
+        response = api.load_remission(payload)
         print("!Remision cargada! ✅✅ ID: " + str(registro_principal['clienteid']) + "\n")
 
     else:
@@ -108,7 +107,7 @@ def main():
     except Exception:
         print("Ocurrió un error 😢😢")
     else:
-        alegraService = AlegraService()       
+        api = AlegraService()       
         enviables = excel.archivo_excel(path_excel = EXCELPATH)
         try:
             registros, filas_vacias_index = enviables.leer_registros()
@@ -117,9 +116,7 @@ def main():
         else:
             procesar_conjuntos(registros, filas_vacias_index, api)
     finally:
-        input("""
-        🥱🥱 Presiona Enter para salir 🥱🥱
-        """)
+        input("Presiona Enter para salir")
 
 if __name__ == '__main__':
     main()

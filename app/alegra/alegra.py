@@ -1,36 +1,32 @@
+import base64
 import json
 import requests
 
-import utils
-from alegra.authorization.authorization import Authorization
+from utils.helpers import read_config
 
 class AlegraService:
 
     def __init__(self):
-        self._headers = Authorization()
-        self._url = utils.leer_config()['rutas']['apiAlegra']
+        self._headers = Authorization().headers
+        self._url = read_config()['rutas']['apiAlegra']
 
     def load_invoce(self, payload):
-        """Carga a la API de Alegra una factura.
-        Params: dict payload: Factura a enviar."""
+        "Carga una factura"
         return requests.post(url = self._url + "invoices/",
                     headers = self._headers, data = json.dumps(payload))        
 
     def load_remission(self, payload):
-        """Cargar a la API una remisión.
-        Params: dict payload: Remision a enviar."""
-        return requests.post(url = self._url_api + "remissions/",
+        "Cargar una remisión."        
+        return requests.post(url = self._url + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
 
     def load_estimate(self, payload):
-        """Cargar a la API una cotizacion.
-        Params: dict payload: Cotizacion a enviar."""
-        return requests.post(url = self._url_api + "estimates/",
+        "Cargar una cotizacion."
+        return requests.post(url = self._url + "estimates/",
                     headers = self._headers, data = json.dumps(payload))        
 
     def get_client_by_id(self, id):
-        """Consultar un cliente por su identificación.
-        Params: int identificacion: Identificación del cliente.
+        """Consultar cliente por su id
         Retorna id del cliente."""
         params = {
             "identification" : int(id),
@@ -42,8 +38,7 @@ class AlegraService:
         return json.loads(response.text)[0]['id']
 
     def get_product_by_id(self, reference):
-        """Consultar el id de un producto dado su referencia.
-        Params: str referenciaProd: Referencia.
+        """Consultar producto por su referencia.
         Retorna id del producto."""
         params = {
             "reference" : int(reference),
@@ -53,3 +48,23 @@ class AlegraService:
         response = requests.get(url = self._url + "items/",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
+
+class Authorization:
+    def __init__(self):
+        self.headers = self._generate_token()
+    
+    def _read_credentials(self):
+        try:
+            with open(read_config()['rutas']['credenciales'], 'r') as file:
+                return [line.strip('\n') for line in file.readlines()]
+        except FileNotFoundError:
+            print("Credentials file not found.")
+            return None
+
+    def _generate_token(self):
+        variables = self._read_credentials()
+        EMAIL, TOKEN = variables[0], variables[1]
+        config = f"{EMAIL}:{TOKEN}"
+        BASICTOKEN = base64.b64encode(config.encode('ascii')).decode('ascii')
+        headers = {"Authorization" : "Basic " + BASICTOKEN}
+        return headers
