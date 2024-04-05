@@ -1,5 +1,4 @@
-import excel
-
+from excel.excel import ExcelFile
 
 from utils.helpers import read_config,leer_txt,validar_tax
 from alegra.alegra import AlegraService
@@ -14,8 +13,8 @@ def procesar_enviables(conjunto_registros, index, api: AlegraService):
     if registro_principal['estado'].lower() == 'pendiente':
         try:
             id_cliente = api.get_client_by_id(id = registro_principal['clienteid'])
-        except:            
-            print("Error consultando la informacion del cliente😢😢 Valide que la identificación número " + str(registro_principal['clienteid']) + " se encuentre asociada a un cliente registrado en Alegra 🥱🥱")
+        except:
+            print("Error consultando la informacion del cliente Valide que la identificación número " + str(registro_principal['clienteid']) + " se encuentre asociada a un cliente registrado en Alegra 🥱🥱")
         else:
             fallo_producto, items = False, []
             for registro in conjunto_registros:
@@ -39,7 +38,7 @@ def procesar_enviables(conjunto_registros, index, api: AlegraService):
             
             if not(fallo_producto):
                 response = generar_payload_send(id_cliente, registro_principal, items, api)
-                cambiar_estado(response, registro = index[0])
+                #cambiar_estado(response, registro = index[0])
             
 def generar_payload_send(id_cliente, registro_principal, items, api):
     """Encargada de generar el json completoy enviar factura o remision a la api."""
@@ -69,11 +68,11 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
         print("No se reconoce entre factura o remision 😢😢 ID: " + str(registro_principal['clienteid']) + "\n")
     return response
 
-def cambiar_estado(response, registro):
-    """Valida que la respuesta del envío sea exitosa."""
-    if response != None and response.status_code == 201:
-        excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
-        excel_obj.cambiar_estado(registro);
+# def cambiar_estado(response, registro):
+#     """Valida que la respuesta del envío sea exitosa."""
+#     if response != None and response.status_code == 201:
+#         excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
+#         excel_obj.cambiar_estado(registro);
 
 def procesar_conjuntos(registros, filas_vacias_index, api):
     """Identificar productos que pertenecen a un mismo cliente.
@@ -101,18 +100,18 @@ def main():
     try:
         open(EXCELPATH, "r+")
     except FileNotFoundError:
-        print("Excel no encontrado 😢😢  Verifica que el archivo con nombre: " + EXCELPATH + " existe 👍👍 ")
+        print("Excel no encontrado. Verifica que el archivo con nombre: " + EXCELPATH + " exista")
     except PermissionError:
-        print("No se pudo abrir el archivo 😢😢 Por favor cierra el Excel 👍👍")
+        print("No se pudo abrir el archivo. Por favor cierra el Excel.")
     except Exception:
         print("Ocurrió un error 😢😢")
     else:
-        api = AlegraService()       
-        enviables = excel.archivo_excel(path_excel = EXCELPATH)
+        api = AlegraService()
+        enviables = ExcelFile()
         try:
-            registros, filas_vacias_index = enviables.leer_registros()
+            registros, filas_vacias_index = enviables.read()
         except ValueError:
-            print("No se encontró la pagina de ENVIABLES dentro del archivo 😢😢")
+            print("No se encontró la pagina de ENVIABLES dentro del archivo.")
         else:
             procesar_conjuntos(registros, filas_vacias_index, api)
     finally:
