@@ -8,7 +8,7 @@ class AlegraService:
 
     def __init__(self):
         self._headers = Authorization().headers
-        self._url = read_config()['rutas']['apiAlegra']
+        self.__url = read_config()['rutas']['apiAlegra']
 
     def load_invoce(self, payload):
         "Carga una factura"
@@ -16,12 +16,12 @@ class AlegraService:
                     headers = self._headers, data = json.dumps(payload))        
 
     def load_remission(self, payload):
-        "Cargar una remisión."        
+        "Carga una remisión."        
         return requests.post(url = self._url + "remissions/",
                     headers = self._headers, data = json.dumps(payload))
 
     def load_estimate(self, payload):
-        "Cargar una cotizacion."
+        "Carga una cotizacion."
         return requests.post(url = self._url + "estimates/",
                     headers = self._headers, data = json.dumps(payload))        
 
@@ -50,11 +50,12 @@ class AlegraService:
         return json.loads(response.text)[0]['id']
 
 class Authorization:
+    "Genera token de autorización para la API."
     def __init__(self):
         self.headers = self._generate_token()
     
     def _read_credentials(self):
-        try:
+        try: #poner credenciales como atributos de la clase
             with open(read_config()['rutas']['credenciales'], 'r') as file:
                 return [line.strip('\n') for line in file.readlines()]
         except FileNotFoundError:

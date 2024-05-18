@@ -1,7 +1,8 @@
-from excel.excel import ExcelFile
-
-from utils.helpers import read_config,leer_txt,validar_tax
 from alegra.alegra import AlegraService
+from excel.excel import Excel
+from utils.helpers import read_config,leer_txt,validar_tax
+
+from mappers.excelMapper import map_purchases
 
 FACTREM = 'fact/remis'
 EXCELPATH = read_config()['rutas']['excel']
@@ -107,9 +108,9 @@ def main():
         print("Ocurrió un error 😢😢")
     else:
         api = AlegraService()
-        enviables = ExcelFile()
+        mapa = map_purchases()
         try:
-            registros, filas_vacias_index = enviables.read()
+            registros, filas_vacias_index = enviables.map_purchases()
         except ValueError:
             print("No se encontró la pagina de ENVIABLES dentro del archivo.")
         else:
