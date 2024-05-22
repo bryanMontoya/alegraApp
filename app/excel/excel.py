@@ -8,6 +8,7 @@ class Excel:
     """Clase para archivo de excel."""
     SHEET_NAME = "ENVIABLES"
     LOADED_STATE = "Cargado"
+    PENDING_STATE = "Pendiente"
     PATH_EXCEL = "Registros.xlsx"
 
     def __init__(self):        

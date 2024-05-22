@@ -1,4 +1,6 @@
+from typing import List
 from alegra.alegra import AlegraService
+from dtos.record import Estado, PurchaseRecordDto, Tipo
 from excel.excel import Excel
 from utils.helpers import read_config,leer_txt,validar_tax
 
@@ -74,27 +76,31 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
 #     if response != None and response.status_code == 201:
 #         excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
 #         excel_obj.cambiar_estado(registro);
+def process_estimate(estimate: PurchaseRecordDto):
+    client_id = api.get_client_by_id(id = estimate.cliente_id)
 
-def procesar_conjuntos(registros, filas_vacias_index, api):
-    """Identificar productos que pertenecen a un mismo cliente.
-    Debido a la estructura del archivo de excel, donde para un cliente se apilan los diferentes productos."""    
-    print("\n🧮🧮 Generando estructura para facturas y remisiones 🧮🧮 \n" )
+def process_remission(remission: PurchaseRecordDto):
+    pass
 
-    conjunto, index = [], []
-    for i, j in enumerate(registros):
-        if (i not in filas_vacias_index):
-            #Juntar registros pertenecientes a mismo enviable.
-            conjunto.append(j)
-            index.append(i)
-        else:
-            if (len(conjunto) > 0):
-                #Procesar conjunto de registros.
-                procesar_enviables(conjunto, index, api)
-                conjunto.clear()
-                index.clear()
-    if (len(conjunto) > 0):
-        #Procesar conjunto de registros.
-        procesar_enviables(conjunto, index, api)
+def process_invoice(invoice: PurchaseRecordDto):
+    pass
+
+def generate_items():
+    pass
+
+def process_purchase(purchase: PurchaseRecordDto):
+    if (purchase.estado != Estado.PENDIENTE):
+        return
+
+    if (purchase.tipo == Tipo.COTIZACION):
+        process_estimate(purchase)
+    elif (purchase.tipo == Tipo.FACTURA):
+        process_invoice(purchase)
+    elif (purchase.tipo == Tipo.REMISION):
+        process_remission(purchase)
+    else: 
+        print("No se reconoce entre factura o remision ID: " + str(purchase.cliente_id) + "\n")
+    
 
 def main():
     print("🚀🚀🚀!AlegraApp está despegandoooo!🚀🚀🚀")
@@ -107,10 +113,14 @@ def main():
     except Exception:
         print("Ocurrió un error 😢😢")
     else:
+        #Singleton con alegraService
         api = AlegraService()
-        mapa = map_purchases()
+        purchases: List[PurchaseRecordDto] = map_purchases()
         try:
-            registros, filas_vacias_index = enviables.map_purchases()
+            for purchase in purchases:                
+                process_purchase(purchase)
+
+            #registros, filas_vacias_index = enviables.map_purchases()
         except ValueError:
             print("No se encontró la pagina de ENVIABLES dentro del archivo.")
         else:
@@ -118,5 +128,12 @@ def main():
     finally:
         input("Presiona Enter para salir")
 
+def main2():
+    purchases: List[PurchaseRecordDto] = map_purchases()
+    for purchase in purchases:                
+        process_purchase(purchase)
+
 if __name__ == '__main__':
-    main()
+    #main()
+    main2()
+

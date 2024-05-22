@@ -7,6 +7,11 @@ class Estado(Enum):
     CARGADO = "cargado"
     PENDIENTE = "pendiente"
 
+class Tipo(Enum):
+    COTIZACION = "cotizacion"
+    FACTURA = "factura"
+    REMISION = "remision"
+
 @dataclass
 class ProductDto:
     iva: str
@@ -25,7 +30,7 @@ class PurchaseRecordDto:
     fecha: date
     plazo_dias: int
     fecha_vencimiento: date
-    tipo: str
+    tipo: Tipo
     dcto_financiero: str
     cliente_nombre: str
     cliente_id: str

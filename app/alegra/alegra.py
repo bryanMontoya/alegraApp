@@ -2,28 +2,29 @@ import base64
 import json
 import requests
 
+from dtos.record import ProductDto
 from utils.helpers import read_config
 
 class AlegraService:
-
+    "Cargar factura, remision y cotizacion en Alegra."
     def __init__(self):
         self._headers = Authorization().headers
-        self.__url = read_config()['rutas']['apiAlegra']
+        self._url = read_config()['rutas']['apiAlegra']
 
-    def load_invoce(self, payload):
+    def load_invoce(self, invoice: ProductDto):
         "Carga una factura"
         return requests.post(url = self._url + "invoices/",
-                    headers = self._headers, data = json.dumps(payload))        
+                    headers = self._headers, data = json.dumps(invoice))        
 
-    def load_remission(self, payload):
+    def load_remission(self, remission: ProductDto):
         "Carga una remisión."        
         return requests.post(url = self._url + "remissions/",
-                    headers = self._headers, data = json.dumps(payload))
+                    headers = self._headers, data = json.dumps(remission))
 
-    def load_estimate(self, payload):
+    def load_estimate(self, estimate: ProductDto):
         "Carga una cotizacion."
         return requests.post(url = self._url + "estimates/",
-                    headers = self._headers, data = json.dumps(payload))        
+                    headers = self._headers, data = json.dumps(estimate))        
 
     def get_client_by_id(self, id):
         """Consultar cliente por su id
@@ -54,14 +55,6 @@ class Authorization:
     def __init__(self):
         self.headers = self._generate_token()
     
-    def _read_credentials(self):
-        try: #poner credenciales como atributos de la clase
-            with open(read_config()['rutas']['credenciales'], 'r') as file:
-                return [line.strip('\n') for line in file.readlines()]
-        except FileNotFoundError:
-            print("Credentials file not found.")
-            return None
-
     def _generate_token(self):
         variables = self._read_credentials()
         EMAIL, TOKEN = variables[0], variables[1]
@@ -69,3 +62,11 @@ class Authorization:
         BASICTOKEN = base64.b64encode(config.encode('ascii')).decode('ascii')
         headers = {"Authorization" : "Basic " + BASICTOKEN}
         return headers
+
+    def _read_credentials(self):
+        try: #TODO poner credenciales como atributos de la clase
+            with open(read_config()['rutas']['credenciales'], 'r') as file:
+                return [line.strip('\n') for line in file.readlines()]
+        except FileNotFoundError:
+            print("Credentials file not found.")
+            return None

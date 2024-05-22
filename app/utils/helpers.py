@@ -5,7 +5,7 @@ def read_config():
     with open("conf/application.yml", "r") as stream:
         return yaml.safe_load(stream)
 
-def leer_txt(path):
+def read_txt(path):
     """Para leer txt de terminos y condiciones."""
     variables = []
     with open(path, 'r') as archivo:
@@ -14,7 +14,7 @@ def leer_txt(path):
             variables.append(linea.strip('\n'))
     return variables[0]
 
-def validar_tax(tax):
+def validate_tax(tax):
     """Valida el id a enviar de acuerdo al iva en el excel."""
     if (tax == 0.19 or tax == 19):
         return 3
