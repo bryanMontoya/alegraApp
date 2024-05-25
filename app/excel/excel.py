@@ -1,3 +1,4 @@
+"Excel class"
 from collections import Counter
 from openpyxl import load_workbook
 
@@ -11,16 +12,18 @@ class Excel:
     PENDING_STATE = "Pendiente"
     PATH_EXCEL = "Registros.xlsx"
 
-    def __init__(self):        
+    def __init__(self):
         self.__records = []
         self.__empty_records_index = []
-    
+
     @property
     def records(self):
+        "Get records list"
         return self.__records
 
     @property
     def empty_records_index(self):
+        "Get empty records index list."
         return self.__empty_records_index
 
     def read_file(self):
@@ -40,12 +43,15 @@ class Excel:
         columnas = [key.lower() for key in df.columns]
         registros = df.values.tolist()
         #Convertir dataframe a una lista de diccionarios.
-        self.__records = [{colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros]
-    
-    def cambiar_estado(self, registro):
-        """Cambiar estado de columna Pendiente a Cargado."""
-        workbook = load_workbook(filename = self.path)
-        sheet = workbook.active
-        space = "Z" + str(registro + 2)
-        sheet[space] = self.LOADED_STATE
-        workbook.save(filename = self.path)
+        self.__records = [
+            {colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros
+            ]
+
+    #TODO pending
+    # def cambiar_estado(self, registro):
+    #     """Cambiar estado de columna Pendiente a Cargado."""
+    #     workbook = load_workbook(filename = self.path)
+    #     sheet = workbook.active
+    #     space = "Z" + str(registro + 2)
+    #     sheet[space] = self.LOADED_STATE
+    #     workbook.save(filename = self.path)

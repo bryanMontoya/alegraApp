@@ -1,19 +1,23 @@
+"DTOs"
 from dataclasses import dataclass
 from enum import Enum
 from datetime import date
 from typing import List
 
 class Estado(Enum):
+    "Handles the state of the purchase record"
     CARGADO = "cargado"
     PENDIENTE = "pendiente"
 
 class Tipo(Enum):
+    "Handles the type of the purchase record"
     COTIZACION = "cotizacion"
     FACTURA = "factura"
     REMISION = "remision"
 
 @dataclass
 class ProductDto:
+    "Product data transfer object."
     iva: str
     referencia: str
     articulo: str
@@ -27,6 +31,7 @@ class ProductDto:
 
 @dataclass
 class PurchaseRecordDto:
+    "Purchase record data transfer object."
     fecha: date
     plazo_dias: int
     fecha_vencimiento: date

@@ -1,3 +1,4 @@
+"Alegra service"
 import base64
 import json
 import requests
@@ -54,7 +55,7 @@ class Authorization:
     "Genera token de autorización para la API."
     def __init__(self):
         self.headers = self._generate_token()
-    
+
     def _generate_token(self):
         variables = self._read_credentials()
         EMAIL, TOKEN = variables[0], variables[1]

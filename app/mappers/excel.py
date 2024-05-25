@@ -1,3 +1,4 @@
+"Map from excel records to Dtos"
 from typing import List
 
 from excel.excel import Excel
@@ -13,15 +14,15 @@ def map_purchases() -> List[PurchaseRecordDto]:
     purchases: List[PurchaseRecordDto] = []
     purchase_list = []
     for record_index, record in enumerate(records):
-        if (record_index not in empty_records_index):
+        if record_index not in empty_records_index:
             purchase_list.append(record)
         else:
-            if (len(purchase_list) > 0):
+            if len(purchase_list) > 0:
                 purchases.append(purchase_list_to_purchase_dto(purchase_list))
                 purchase_list.clear()
-    if (len(purchase_list) > 0):
+    if len(purchase_list) > 0:
         purchases.append(purchase_list_to_purchase_dto(purchase_list))
-    
+
     return purchases
 
 def purchase_list_to_purchase_dto(purchase_list: List) -> PurchaseRecordDto:
@@ -31,6 +32,7 @@ def purchase_list_to_purchase_dto(purchase_list: List) -> PurchaseRecordDto:
     return purchase
 
 def record_to_product_dto(record: dict) -> ProductDto:
+    "Convert record to product dto."
     return ProductDto(
         iva = record['iva'],
         referencia = record['ref'],
@@ -45,6 +47,7 @@ def record_to_product_dto(record: dict) -> ProductDto:
     )
 
 def record_to_purchase_dto(record: dict, products: List[ProductDto]) -> PurchaseRecordDto:
+    "Convert record to purchase dto."
     return PurchaseRecordDto(
         fecha = record['fecha'],
         plazo_dias = record['plazo dias'],
