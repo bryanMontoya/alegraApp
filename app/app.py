@@ -1,5 +1,7 @@
 "Main module application"
+from requests import Response
 from typing import List
+
 from alegra.alegra import AlegraService
 from dtos.record import Estado, PurchaseRecordDto, ProductDto, Tipo
 from mappers.excel import map_purchases
@@ -14,14 +16,14 @@ def process_purchase(purchase: PurchaseRecordDto):
     payload = generate_payload(purchase)
     try:
         if purchase.tipo == Tipo.COTIZACION:
-            response = process_estimate(payload)
+            return process_estimate(purchase, payload)
         elif purchase.tipo == Tipo.FACTURA:
-            response = process_invoice(purchase, payload)
+            return process_invoice(purchase, payload)
         elif purchase.tipo == Tipo.REMISION:
-            response = process_remission(purchase, payload)
+            return process_remission(purchase, payload)
         else:
             print("No se reconoce entre factura/remision/cotizacion ID" + str(purchase.cliente_id))
-        print(response)
+            return purchase
     except Exception as e:
         print(f"Error al procesar registro {purchase.cliente_id}. {e}")
 
@@ -50,9 +52,10 @@ def generate_items(products: List[ProductDto]) -> List[dict]:
         })
     return items
 
-def process_estimate(payload: dict):
+def process_estimate(estimate: PurchaseRecordDto, payload: dict):
     "Process estimate - Call api load"
-    return api.load_estimate(payload)
+    response = api.load_estimate(payload)
+    return change_state(estimate, response)
 
 def process_invoice(invoice: PurchaseRecordDto, payload: dict):
     "Process invoice - Configure payload adds and Call api load"
@@ -66,9 +69,10 @@ def process_invoice(invoice: PurchaseRecordDto, payload: dict):
     )
     payload['termsConditions'] = read_txt(config['rutas']['FacturaTyC'])
 
-    return api.load_invoce(payload)
+    response = api.load_invoce(payload)
+    return change_state(invoice, response)
 
-def process_remission(remission: PurchaseRecordDto, payload: dict):
+def process_remission(remission: PurchaseRecordDto, payload: dict) -> PurchaseRecordDto:
     "Process remission - Configure payload adds and Call api load"
     config = read_config()
     payload['anotation'] = (
@@ -78,13 +82,21 @@ def process_remission(remission: PurchaseRecordDto, payload: dict):
         f"{remission.empacador}"
     )
     payload['comments'] = [read_txt(config['rutas']['RemisionTyC'])]
-    return api.load_remission(payload)
+
+    response = api.load_remission(payload)
+    return change_state(remission, response)
+
+def change_state(purchase: PurchaseRecordDto, api_response: Response) -> PurchaseRecordDto:
+    "Change the state of the purchase"
+    if api_response.status_code == 201:
+        purchase.estado = Estado.CARGADO
+    return purchase
 
 def main():
     "Main function"
     purchases: List[PurchaseRecordDto] = map_purchases()
     for purchase in purchases:
-        process_purchase(purchase)
+        print(process_purchase(purchase))
 
 if __name__ == '__main__':
     main()

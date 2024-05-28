@@ -76,31 +76,6 @@ def generar_payload_send(id_cliente, registro_principal, items, api):
 #     if response != None and response.status_code == 201:
 #         excel_obj = excel.archivo_excel(path_excel = EXCELPATH)
 #         excel_obj.cambiar_estado(registro);
-def process_estimate(estimate: PurchaseRecordDto):
-    client_id = api.get_client_by_id(id = estimate.cliente_id)
-
-def process_remission(remission: PurchaseRecordDto):
-    pass
-
-def process_invoice(invoice: PurchaseRecordDto):
-    pass
-
-def generate_items():
-    pass
-
-def process_purchase(purchase: PurchaseRecordDto):
-    if (purchase.estado != Estado.PENDIENTE):
-        return
-
-    if (purchase.tipo == Tipo.COTIZACION):
-        process_estimate(purchase)
-    elif (purchase.tipo == Tipo.FACTURA):
-        process_invoice(purchase)
-    elif (purchase.tipo == Tipo.REMISION):
-        process_remission(purchase)
-    else: 
-        print("No se reconoce entre factura o remision ID: " + str(purchase.cliente_id) + "\n")
-    
 
 def main():
     print("🚀🚀🚀!AlegraApp está despegandoooo!🚀🚀🚀")

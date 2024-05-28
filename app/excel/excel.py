@@ -28,24 +28,31 @@ class Excel:
 
     def read_file(self):
         """Retorna lista de registros pendientes y lista con la posicion de registros vacios."""
-        df = pd.read_excel(
-            self.PATH_EXCEL,
-            index_col = None,
-            sheet_name = self.SHEET_NAME,
-            usecols = "A:Z"
-            )
-        #Espacios en blanco como Nan.
-        df = df.replace(r'^\s*$', np.NaN, regex = True)
-        #Saber cuales filas son vacias.
-        nulos = Counter(np.where(pd.isnull(df))[0]).most_common()
-        self.__empty_records_index = [x[0] for x in nulos if x[1] == len(df.columns)]
-        #Conocer nombres columnas.
-        columnas = [key.lower() for key in df.columns]
-        registros = df.values.tolist()
-        #Convertir dataframe a una lista de diccionarios.
-        self.__records = [
-            {colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros
-            ]
+        try:
+            open(self.PATH_EXCEL, "r+")
+        except FileNotFoundError:
+            print("Excel no encontrado. Verifica que el archivo: " + self.PATH_EXCEL + " exista")
+        except PermissionError:
+            print("Cierra el archivo de excel")
+        else:
+            df = pd.read_excel(
+                self.PATH_EXCEL,
+                index_col = None,
+                sheet_name = self.SHEET_NAME,
+                usecols = "A:Z"
+                )
+            #Espacios en blanco como Nan.
+            df = df.replace(r'^\s*$', np.NaN, regex = True)
+            #Saber cuales filas son vacias.
+            nulos = Counter(np.where(pd.isnull(df))[0]).most_common()
+            self.__empty_records_index = [x[0] for x in nulos if x[1] == len(df.columns)]
+            #Conocer nombres columnas.
+            columnas = [key.lower() for key in df.columns]
+            registros = df.values.tolist()
+            #Convertir dataframe a una lista de diccionarios.
+            self.__records = [
+                {colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros
+                ]
 
     #TODO pending
     # def cambiar_estado(self, registro):

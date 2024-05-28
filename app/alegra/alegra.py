@@ -65,7 +65,7 @@ class Authorization:
         return headers
 
     def _read_credentials(self):
-        try: #TODO poner credenciales como atributos de la clase
+        try:
             with open(read_config()['rutas']['credenciales'], 'r') as file:
                 return [line.strip('\n') for line in file.readlines()]
         except FileNotFoundError:
