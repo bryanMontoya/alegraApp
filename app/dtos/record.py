@@ -32,6 +32,7 @@ class ProductDto:
 @dataclass
 class PurchaseRecordDto:
     "Purchase record data transfer object."
+    row_id: int
     fecha: date
     plazo_dias: int
     fecha_vencimiento: date

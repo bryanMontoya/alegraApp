@@ -53,12 +53,11 @@ class Excel:
             self.__records = [
                 {colum:factura[columnas.index(colum)] for colum in columnas} for factura in registros
                 ]
-
-    #TODO pending
-    # def cambiar_estado(self, registro):
-    #     """Cambiar estado de columna Pendiente a Cargado."""
-    #     workbook = load_workbook(filename = self.path)
-    #     sheet = workbook.active
-    #     space = "Z" + str(registro + 2)
-    #     sheet[space] = self.LOADED_STATE
-    #     workbook.save(filename = self.path)
+  
+    def change_status_column(self, row: int):
+        "Cambiar estado de columna Pendiente a Cargado"
+        workbook = load_workbook(filename = self.PATH_EXCEL)
+        sheet = workbook[self.SHEET_NAME]
+        space = f"Z{row}"
+        sheet[space] = self.LOADED_STATE
+        workbook.save(filename = self.PATH_EXCEL)
