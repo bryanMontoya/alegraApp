@@ -56,7 +56,7 @@ def record_to_purchase_dto(record: dict, products: List[ProductDto], index: int)
         plazo_dias = record['plazo dias'],
         fecha_vencimiento = record['fecha de vencimiento'],
         tipo = Tipo(record['fact/remis'].lower()),
-        dcto_financiero = record['dcto fnciero'],
+        vendedor = record['vendedor'],
         cliente_nombre = record['clientenombre'],
         cliente_id = record['clienteid'],
         poblacion = record['poblacion'],
