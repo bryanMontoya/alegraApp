@@ -1,1 +1,1 @@
-py app\lanzamiento.py
+py app\app.py
