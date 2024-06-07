@@ -37,7 +37,7 @@ class PurchaseRecordDto:
     plazo_dias: int
     fecha_vencimiento: date
     tipo: Tipo
-    dcto_financiero: str
+    vendedor: str
     cliente_nombre: str
     cliente_id: str
     poblacion: str
