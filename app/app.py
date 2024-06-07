@@ -110,5 +110,8 @@ def main():
     print("AlegraApp ha aterrizado")
 
 if __name__ == '__main__':
-    main()
-    input()
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}")
+    input("Presione cualquier tecla para salir")
