@@ -40,6 +40,7 @@ if %errorlevel%==0 (
 ::Function to install the required Python packages
 :InstallPackages
 echo Installing required Python packages...
+python -m ensurepip --upgrade
 pip install -r requirements.txt >nul 2>&1
 if %errorlevel%==0 (
     echo Required Python packages have been successfully installed.
