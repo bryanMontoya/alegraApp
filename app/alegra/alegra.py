@@ -14,17 +14,17 @@ class AlegraService:
 
     def load_invoce(self, invoice: ProductDto):
         "Carga una factura"
-        return requests.post(url = self._url + "invoices/",
+        return requests.post(url = self._url + "invoices",
                     headers = self._headers, data = json.dumps(invoice))        
 
     def load_remission(self, remission: ProductDto):
         "Carga una remisión."        
-        return requests.post(url = self._url + "remissions/",
+        return requests.post(url = self._url + "remissions",
                     headers = self._headers, data = json.dumps(remission))
 
     def load_estimate(self, estimate: ProductDto):
         "Carga una cotizacion."
-        return requests.post(url = self._url + "estimates/",
+        return requests.post(url = self._url + "estimates",
                     headers = self._headers, data = json.dumps(estimate))        
 
     def get_client_by_id(self, id):
@@ -35,7 +35,7 @@ class AlegraService:
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self._url + "contacts/",
+        response = requests.get(url = self._url + "contacts",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
 
@@ -47,7 +47,7 @@ class AlegraService:
             "order_field" : "id",
             "limit"  : 1
         }
-        response = requests.get(url = self._url + "items/",
+        response = requests.get(url = self._url + "items",
                 headers = self._headers, params = params)
         return json.loads(response.text)[0]['id']
 
