@@ -32,7 +32,7 @@ def process_purchase(purchase: PurchaseRecordDto):
         change_state(purchase = purchase, api_response = response)
     except Exception:
         print(f"Error al procesar registro para cliente con id {purchase.cliente_id}")
-         print(f"Error: {Exception}")
+        print(f"Error: {Exception}")
         return
 
 def generate_payload(purchase: PurchaseRecordDto) -> dict:
