@@ -30,8 +30,9 @@ def process_purchase(purchase: PurchaseRecordDto):
             print(f"No se reconoce entre factura/remision/cotizacion ID {purchase.cliente_id}")
             return
         change_state(purchase = purchase, api_response = response)
-    except Exception:
+    except Exception as e:
         print(f"Error al procesar registro para cliente con id {purchase.cliente_id}")
+        print(f"Error: {e}")
         return
 
 def generate_payload(purchase: PurchaseRecordDto) -> dict:
